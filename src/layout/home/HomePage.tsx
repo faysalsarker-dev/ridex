@@ -6,7 +6,7 @@ const HomePage = () => {
     return (
         <>
         <Navbar/>
-        <main className="min-h-screen">
+        <main className="min-h-screen bg-background">
             <Outlet/>
 
         </main>

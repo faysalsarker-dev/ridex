@@ -24,6 +24,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+   --color-primary-dark: var(--primary-dark);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
@@ -62,7 +63,7 @@
   --muted-foreground: #4B5563;
   --accent: #0D99FF;
   --accent-foreground: #FFFFFF;
-
+--primary-dark: #0077CC;
   /* Destructive / Error */
   --destructive: #EF4444;
 
@@ -85,7 +86,7 @@
   --card-foreground: #F5F5F5;
   --popover: #1F2937;
   --popover-foreground: #F5F5F5;
-
+--primary-dark: #0077CC;
   --primary: #0D99FF;
   --primary-foreground: #FFFFFF;
 
@@ -109,7 +110,7 @@
 }
 
 
-@layer base {
+/* @layer base {
   * {
     @apply border-border outline-ring/50;
   }
@@ -121,6 +122,5 @@
   a, button {
     color: var(--primary-foreground);
     background-color: var(--primary);
-    @apply hover:bg-primary-dark;
   }
-}
+} */
