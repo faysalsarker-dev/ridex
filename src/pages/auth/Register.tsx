@@ -84,18 +84,7 @@ const Register = () => {
             Join thousands of riders and drivers on the most reliable ride-sharing platform. Get where
             you need to go, or earn money driving.
           </p>
-          <div className="flex items-center gap-8 text-white/80">
-            {[
-              { label: "Active Riders", value: "100K+" },
-              { label: "Drivers", value: "10K+" },
-              { label: "Cities", value: "50+" },
-            ].map((item) => (
-              <div key={item.label} className="text-center">
-                <div className="text-2xl font-bold">{item.value}</div>
-                <div className="text-sm">{item.label}</div>
-              </div>
-            ))}
-          </div>
+       
         </div>
 
         {/* Registration Form */}

@@ -1,6 +1,7 @@
 import index from "@/layout/home/Landing";
+import AvailableRidesPage from "@/pages/ride/AvailableRidesPage";
 import UserProfile from "@/pages/User/UserProfile";
-import { Home, User } from 'lucide-react';
+import { Home, RulerDimensionLineIcon, User } from 'lucide-react';
 
 export const publicRoutes = [
    {
@@ -14,6 +15,12 @@ export const publicRoutes = [
         path: "/profile",
         icon: User,
         name:"Profile"
+      },
+   {
+        Component: AvailableRidesPage,
+        path: "/available",
+        icon: RulerDimensionLineIcon,
+        name:"available"
       },
 ]
 
