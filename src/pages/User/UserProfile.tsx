@@ -1,615 +1,360 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { User, Edit2, Shield, Car, CheckCircle, XCircle, Eye, EyeOff, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-const profileAvatar = 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D'
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { User, Mail, Lock, Car, Star, Shield, Camera } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
-interface VehicleInfo {
-  model?: string;
-  licensePlate?: string;
-  color?: string;
-}
 
-interface DriverProfile {
-  isApproved: boolean;
-  isOnline: boolean;
-  vehicleInfo: VehicleInfo;
-}
 
-interface UserData {
-  name: string;
-  email: string;
-  password: string;
-  role: 'rider' | 'driver' | 'admin';
-  isBlocked: boolean;
-  driverProfile?: DriverProfile;
-}
+const Profile = () => {
+  const [isDriver] = useState(true); 
 
-const UserProfile: React.FC = () => {
-  
-  // Mock user data - in real app this would come from API/context
-  const [userData, setUserData] = useState<UserData>({
-    name: "John Smith",
-    email: "john.smith@example.com",
-    password: "******",
-    role: "driver",
-    isBlocked: false,
-    driverProfile: {
-      isApproved: true,
-      isOnline: true,
-      vehicleInfo: {
-        model: "Toyota Camry 2022",
-        licensePlate: "ABC-123",
-        color: "White"
-      }
-    }
-  });
-
-  // Dialog states
-  const [nameDialogOpen, setNameDialogOpen] = useState(false);
-  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
-  
-  // Form states
-  const [newName, setNewName] = useState(userData.name);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false
-  });
-
-  const handleNameUpdate = () => {
-    if (newName.trim().length < 2) {
-   
-      return;
-    }
-    
-    setUserData(prev => ({ ...prev, name: newName.trim() }));
-    setNameDialogOpen(false);
+  const handleUpdateProfile = (e: React.FormEvent) => {
+    e.preventDefault();
 
   };
 
-  const handlePasswordUpdate = () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
+  const handleUpdatePassword = (e: React.FormEvent) => {
+    e.preventDefault();
 
-      return;
-    }
-    
-    if (newPassword.length < 6) {
-  
-      return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-   
-      return;
-    }
-    
-    // In real app, this would make an API call
-    setPasswordDialogOpen(false);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-   
-  };
-
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case 'admin': return 'destructive';
-      case 'driver': return 'default';
-      case 'rider': return 'secondary';
-      default: return 'secondary';
-    }
-  };
-
-  const getStatusBadge = (isApproved: boolean, isOnline: boolean) => {
-    if (!isApproved) return { variant: 'destructive' as const, text: 'Pending Approval', icon: XCircle };
-    if (isOnline) return { variant: 'default' as const, text: 'Online', icon: CheckCircle };
-    return { variant: 'secondary' as const, text: 'Offline', icon: XCircle };
   };
 
   return (
-    <motion.div 
-      className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 p-4 md:p-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
-      <div className="max-w-4xl mx-auto space-y-6">
-        
-        {/* Header */}
-        <motion.div 
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8"
+      >
+        <h1 className="text-4xl font-bold mb-4">Profile Settings</h1>
+        <p className="text-xl text-muted-foreground">
+          Manage your account information and preferences
+        </p>
+      </motion.div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Profile Overview */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
+          className="lg:col-span-1"
         >
-          <motion.h1 
-            className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2"
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
-          >
-            User Profile
-          </motion.h1>
-          <motion.p 
-            className="text-lg text-muted-foreground"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            Manage your account settings and preferences
-          </motion.p>
+          <Card className="shadow-soft rounded-2xl border-border/50">
+            <CardHeader className="text-center">
+              <div className="relative mx-auto mb-4">
+                <Avatar className="w-24 h-24">
+                  <AvatarImage src="/placeholder-user.jpg" alt="Profile" />
+                  <AvatarFallback className="text-2xl font-semibold gradient-primary text-white">
+                    JD
+                  </AvatarFallback>
+                </Avatar>
+                <Button
+                  size="sm"
+                  className="absolute bottom-0 right-0 rounded-full w-8 h-8 p-0"
+                  variant="secondary"
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+              </div>
+              <CardTitle className="text-xl">John Doe</CardTitle>
+              <CardDescription className="text-base">john.doe@email.com</CardDescription>
+              <div className="flex justify-center gap-2 mt-3">
+                {isDriver ? (
+                  <Badge className="gradient-primary text-white">Driver</Badge>
+                ) : (
+                  <Badge variant="secondary">Rider</Badge>
+                )}
+                <Badge variant="outline" className="gap-1">
+                  <Shield className="h-3 w-3" />
+                  Verified
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Member since</span>
+                  <span className="text-sm font-medium">January 2024</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Rating</span>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm font-medium">4.8</span>
+                  </div>
+                </div>
+                {isDriver && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Total Rides</span>
+                    <span className="text-sm font-medium">127</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
-        {/* Main Profile Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="shadow-2xl border-0 bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 pointer-events-none" />
-            
-            <CardHeader className="text-center pb-2 relative z-10">
-              <motion.div 
-                className="flex justify-center mb-6"
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6, type: "spring", stiffness: 300 }}
-              >
-                <motion.div
-                  className="relative"
-                  whileHover={{ scale: 1.05, rotate: [0, -1, 1, 0] }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Avatar className="h-32 w-32 ring-4 ring-primary/20 shadow-lg">
-                    <AvatarImage src={profileAvatar} alt="Profile" />
-                    <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
-                      {userData.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <motion.div
-                    className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full p-2"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-              >
-                <CardTitle className="text-3xl font-bold mb-2">{userData.name}</CardTitle>
-              </motion.div>
-              
-              <motion.div 
-                className="flex justify-center items-center gap-3 mt-4"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, duration: 0.4, type: "spring" }}
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6, type: "spring", stiffness: 500 }}
-                >
-                  <Badge variant={getRoleBadgeVariant(userData.role)} className="capitalize text-sm px-3 py-1">
-                    {userData.role}
-                  </Badge>
-                </motion.div>
-                {userData.isBlocked && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.7, type: "spring", stiffness: 500 }}
-                  >
-                    <Badge variant="destructive" className="text-sm px-3 py-1">
-                      <Shield className="h-3 w-3 mr-1" />
-                      Blocked
-                    </Badge>
-                  </motion.div>
-                )}
-              </motion.div>
+
+<Dialog>
+  <DialogTrigger> <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Personal Information
+              </CardTitle>
+             
+            </CardHeader></DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Update your personal details here</DialogTitle>
+        <Card className="shadow-soft rounded-2xl border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Personal Information
+              </CardTitle>
+              <CardDescription>
+                Update your personal details here
+              </CardDescription>
             </CardHeader>
-
-            <CardContent className="space-y-8 relative z-10">
-              {/* Contact Information */}
-              <motion.div 
-                className="grid md:grid-cols-2 gap-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              >
-                <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                  whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+            <CardContent>
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input
+                      id="firstName"
+                      defaultValue="John"
+                      className="h-12 rounded-xl border-border/50"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      defaultValue="Doe"
+                      className="h-12 rounded-xl border-border/50"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      defaultValue="john.doe@email.com"
+                      className="pl-10 h-12 rounded-xl border-border/50"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    defaultValue="+1 (555) 123-4567"
+                    className="h-12 rounded-xl border-border/50"
+                  />
+                </div>
+                <Button 
+                  type="submit"
+                  className="gradient-primary text-white rounded-xl shadow-soft hover:shadow-elevated transition-all duration-300"
                 >
-                  <Card className="border-muted/50 bg-gradient-to-br from-card to-muted/10 backdrop-blur-sm shadow-lg">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <motion.div
-                          whileHover={{ rotate: 360 }}
-                          transition={{ duration: 0.5 }}
-                        >
-                          <User className="h-5 w-5 text-primary" />
-                        </motion.div>
-                        Personal Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <motion.div 
-                        className="flex items-center justify-between group"
-                        whileHover={{ x: 5 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                      >
-                        <div>
-                          <Label className="text-sm text-muted-foreground">Full Name</Label>
-                          <p className="font-semibold text-lg">{userData.name}</p>
-                        </div>
-                        <Dialog open={nameDialogOpen} onOpenChange={setNameDialogOpen}>
-                          <DialogTrigger asChild>
-                            <motion.div
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Edit2 className="h-4 w-4" />
-                              </Button>
-                            </motion.div>
-                          </DialogTrigger>
-                          <AnimatePresence>
-                            {nameDialogOpen && (
-                              <DialogContent asChild>
-                                <motion.div
-                                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                  transition={{ duration: 0.2 }}
-                                >
-                                  <DialogHeader>
-                                    <DialogTitle>Update Name</DialogTitle>
-                                  </DialogHeader>
-                                  <motion.div 
-                                    className="space-y-4 pt-4"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                  >
-                                    <div>
-                                      <Label htmlFor="name">Full Name</Label>
-                                      <motion.div
-                                        whileFocus={{ scale: 1.02 }}
-                                        transition={{ type: "spring", stiffness: 300 }}
-                                      >
-                                        <Input
-                                          id="name"
-                                          value={newName}
-                                          onChange={(e) => setNewName(e.target.value)}
-                                          placeholder="Enter your full name"
-                                          className="mt-1"
-                                        />
-                                      </motion.div>
-                                    </div>
-                                    <div className="flex gap-2 pt-4">
-                                      <motion.div 
-                                        className="flex-1"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                      >
-                                        <Button onClick={handleNameUpdate} className="w-full">
-                                          Update Name
-                                        </Button>
-                                      </motion.div>
-                                      <motion.div 
-                                        className="flex-1"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                      >
-                                        <Button 
-                                          variant="outline" 
-                                          onClick={() => setNameDialogOpen(false)}
-                                          className="w-full"
-                                        >
-                                          Cancel
-                                        </Button>
-                                      </motion.div>
-                                    </div>
-                                  </motion.div>
-                                </motion.div>
-                              </DialogContent>
-                            )}
-                          </AnimatePresence>
-                        </Dialog>
-                      </motion.div>
-                      
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
-                      >
-                        <Label className="text-sm text-muted-foreground">Email Address</Label>
-                        <p className="font-medium text-muted-foreground">{userData.email}</p>
-                        <motion.p 
-                          className="text-xs text-muted-foreground mt-1"
-                          animate={{ opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          Email cannot be changed
-                        </motion.p>
-                      </motion.div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                  Update Profile
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+    </DialogHeader>
+  </DialogContent>
+</Dialog>
 
-                {/* Security */}
-                <motion.div 
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                  whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+
+
+        {/* Profile Forms */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="lg:col-span-2 space-y-6"
+        >
+          {/* Personal Information */}
+          <Card className="shadow-soft rounded-2xl border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Personal Information
+              </CardTitle>
+              <CardDescription>
+                Update your personal details here
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input
+                      id="firstName"
+                      defaultValue="John"
+                      className="h-12 rounded-xl border-border/50"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      defaultValue="Doe"
+                      className="h-12 rounded-xl border-border/50"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      defaultValue="john.doe@email.com"
+                      className="pl-10 h-12 rounded-xl border-border/50"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    defaultValue="+1 (555) 123-4567"
+                    className="h-12 rounded-xl border-border/50"
+                  />
+                </div>
+                <Button 
+                  type="submit"
+                  className="gradient-primary text-white rounded-xl shadow-soft hover:shadow-elevated transition-all duration-300"
                 >
-                  <Card className="border-muted/50 bg-gradient-to-br from-card to-muted/10 backdrop-blur-sm shadow-lg">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <motion.div
-                          animate={{ rotate: [0, 5, -5, 0] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <Shield className="h-5 w-5 text-primary" />
-                        </motion.div>
-                        Security
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <motion.div 
-                        className="flex items-center justify-between group"
-                        whileHover={{ x: 5 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                      >
-                        <div>
-                          <Label className="text-sm text-muted-foreground">Password</Label>
-                          <p className="font-medium">••••••••</p>
-                        </div>
-                        <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
-                          <DialogTrigger asChild>
-                            <motion.div
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Edit2 className="h-4 w-4" />
-                              </Button>
-                            </motion.div>
-                          </DialogTrigger>
-                          <AnimatePresence>
-                            {passwordDialogOpen && (
-                              <DialogContent asChild>
-                                <motion.div
-                                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                  transition={{ duration: 0.2 }}
-                                >
-                                  <DialogHeader>
-                                    <DialogTitle>Change Password</DialogTitle>
-                                  </DialogHeader>
-                                  <motion.div 
-                                    className="space-y-4 pt-4"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                  >
-                                    {[
-                                      { id: 'current-password', label: 'Current Password', value: currentPassword, setValue: setCurrentPassword, show: showPasswords.current, key: 'current' },
-                                      { id: 'new-password', label: 'New Password', value: newPassword, setValue: setNewPassword, show: showPasswords.new, key: 'new' },
-                                      { id: 'confirm-password', label: 'Confirm New Password', value: confirmPassword, setValue: setConfirmPassword, show: showPasswords.confirm, key: 'confirm' }
-                                    ].map((field, index) => (
-                                      <motion.div
-                                        key={field.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.1 }}
-                                      >
-                                        <Label htmlFor={field.id}>{field.label}</Label>
-                                        <div className="relative">
-                                          <motion.div
-                                            whileFocus={{ scale: 1.02 }}
-                                            transition={{ type: "spring", stiffness: 300 }}
-                                          >
-                                            <Input
-                                              id={field.id}
-                                              type={field.show ? "text" : "password"}
-                                              value={field.value}
-                                              onChange={(e) => field.setValue(e.target.value)}
-                                              placeholder={`Enter ${field.label.toLowerCase()}`}
-                                              className="pr-10"
-                                            />
-                                          </motion.div>
-                                          <motion.div
-                                            whileHover={{ scale: 1.1 }}
-                                            whileTap={{ scale: 0.9 }}
-                                          >
-                                            <Button
-                                              type="button"
-                                              variant="ghost"
-                                              size="sm"
-                                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                              onClick={() => setShowPasswords(prev => ({ ...prev, [field.key]: !prev[field.key as keyof typeof prev] }))}
-                                            >
-                                              {field.show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </Button>
-                                          </motion.div>
-                                        </div>
-                                      </motion.div>
-                                    ))}
-                                    
-                                    <motion.div 
-                                      className="flex gap-2 pt-4"
-                                      initial={{ opacity: 0 }}
-                                      animate={{ opacity: 1 }}
-                                      transition={{ delay: 0.4 }}
-                                    >
-                                      <motion.div 
-                                        className="flex-1"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                      >
-                                        <Button onClick={handlePasswordUpdate} className="w-full">
-                                          Update Password
-                                        </Button>
-                                      </motion.div>
-                                      <motion.div 
-                                        className="flex-1"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                      >
-                                        <Button 
-                                          variant="outline" 
-                                          onClick={() => {
-                                            setPasswordDialogOpen(false);
-                                            setCurrentPassword('');
-                                            setNewPassword('');
-                                            setConfirmPassword('');
-                                          }}
-                                          className="w-full"
-                                        >
-                                          Cancel
-                                        </Button>
-                                      </motion.div>
-                                    </motion.div>
-                                  </motion.div>
-                                </motion.div>
-                              </DialogContent>
-                            )}
-                          </AnimatePresence>
-                        </Dialog>
-                      </motion.div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </motion.div>
+                  Update Profile
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
-              {/* Driver Profile (only shown for drivers) */}
-              <AnimatePresence>
-                {userData.role === 'driver' && userData.driverProfile && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0, y: 20 }}
-                    animate={{ opacity: 1, height: "auto", y: 0 }}
-                    exit={{ opacity: 0, height: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                    whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+          {/* Driver Information */}
+          {isDriver && (
+            <Card className="shadow-soft rounded-2xl border-border/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="h-5 w-5" />
+                  Driver & Vehicle Information
+                </CardTitle>
+                <CardDescription>
+                  Update your vehicle details and driver information
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="vehicleModel">Vehicle Model</Label>
+                      <Input
+                        id="vehicleModel"
+                        defaultValue="Toyota Camry"
+                        className="h-12 rounded-xl border-border/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="licensePlate">License Plate</Label>
+                      <Input
+                        id="licensePlate"
+                        defaultValue="ABC-1234"
+                        className="h-12 rounded-xl border-border/50"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicleColor">Vehicle Color</Label>
+                    <Input
+                      id="vehicleColor"
+                      defaultValue="Silver"
+                      className="h-12 rounded-xl border-border/50"
+                    />
+                  </div>
+                  <Button 
+                    type="submit"
+                    className="gradient-primary text-white rounded-xl shadow-soft hover:shadow-elevated transition-all duration-300"
                   >
-                    <Card className="border-muted/50 bg-gradient-to-br from-card to-muted/10 backdrop-blur-sm shadow-lg">
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <motion.div
-                            animate={{ x: [0, 5, 0] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
-                            <Car className="h-5 w-5 text-primary" />
-                          </motion.div>
-                          Driver Information
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-6">
-                        <motion.div 
-                          className="flex items-center gap-4 mb-4"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                        >
-                          <div>
-                            <Label className="text-sm text-muted-foreground">Status</Label>
-                            <motion.div 
-                              className="flex items-center gap-2 mt-1"
-                              animate={userData.driverProfile!.isOnline ? { 
-                                scale: [1, 1.05, 1] 
-                              } : {}}
-                              transition={{ 
-                                duration: 2, 
-                                repeat: userData.driverProfile!.isOnline ? Infinity : 0 
-                              }}
-                            >
-                              {(() => {
-                                const status = getStatusBadge(
-                                  userData.driverProfile!.isApproved, 
-                                  userData.driverProfile!.isOnline
-                                );
-                                return (
-                                  <Badge variant={status.variant} className="flex items-center gap-1 text-sm px-3 py-1">
-                                    <motion.div
-                                      animate={{ 
-                                        scale: userData.driverProfile!.isOnline ? [1, 1.2, 1] : 1,
-                                      }}
-                                      transition={{ 
-                                        duration: 1.5, 
-                                        repeat: userData.driverProfile!.isOnline ? Infinity : 0 
-                                      }}
-                                    >
-                                      <status.icon className="h-3 w-3" />
-                                    </motion.div>
-                                    {status.text}
-                                  </Badge>
-                                );
-                              })()}
-                            </motion.div>
-                          </div>
-                        </motion.div>
+                    Update Vehicle Info
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
 
-                        <motion.div 
-                          className="grid md:grid-cols-3 gap-4"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.3 }}
-                        >
-                          {[
-                            { label: 'Vehicle Model', value: userData.driverProfile.vehicleInfo.model },
-                            { label: 'License Plate', value: userData.driverProfile.vehicleInfo.licensePlate },
-                            { label: 'Vehicle Color', value: userData.driverProfile.vehicleInfo.color }
-                          ].map((item, index) => (
-                            <motion.div
-                              key={item.label}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.4 + index * 0.1 }}
-                              whileHover={{ 
-                                scale: 1.05,
-                                transition: { type: "spring", stiffness: 300 }
-                              }}
-                              className="p-4 rounded-lg bg-gradient-to-br from-muted/20 to-muted/10 border border-muted/30"
-                            >
-                              <Label className="text-sm text-muted-foreground">{item.label}</Label>
-                              <p className="font-semibold text-lg mt-1">{item.value || 'Not provided'}</p>
-                            </motion.div>
-                          ))}
-                        </motion.div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
+          {/* Change Password */}
+          <Card className="shadow-soft rounded-2xl border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="h-5 w-5" />
+                Change Password
+              </CardTitle>
+              <CardDescription>
+                Update your account password for security
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdatePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Input
+                    id="currentPassword"
+                    type="password"
+                    className="h-12 rounded-xl border-border/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    className="h-12 rounded-xl border-border/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    className="h-12 rounded-xl border-border/50"
+                  />
+                </div>
+                <Button 
+                  type="submit"
+                  className="gradient-primary text-white rounded-xl shadow-soft hover:shadow-elevated transition-all duration-300"
+                >
+                  Update Password
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
-export default UserProfile;
+export default Profile;

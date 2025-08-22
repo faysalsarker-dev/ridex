@@ -1,7 +1,9 @@
 import index from "@/layout/home/Landing";
-import AvailableRidesPage from "@/pages/ride/AvailableRidesPage";
-import UserProfile from "@/pages/User/UserProfile";
-import { Home, RulerDimensionLineIcon, User } from 'lucide-react';
+import DriverRides from "@/pages/driver/DriverRides";
+import DriverHistory from "@/pages/history/DriverHistory";
+import RiderHistory from "@/pages/history/RiderHistory";
+import PostRide from "@/pages/ride/PostRide";
+import { Home, RulerDimensionLineIcon} from 'lucide-react';
 
 export const publicRoutes = [
    {
@@ -10,18 +12,33 @@ export const publicRoutes = [
         icon: Home,
         name:"Home"
       },
+
    {
-        Component: UserProfile,
-        path: "/profile",
-        icon: User,
-        name:"Profile"
-      },
-   {
-        Component: AvailableRidesPage,
+        Component: DriverRides,
         path: "/available",
         icon: RulerDimensionLineIcon,
         name:"available"
       },
+   {
+        Component: PostRide,
+        path: "/rides",
+        icon: RulerDimensionLineIcon,
+        name:"post ride"
+      },
+
+   {
+        Component: RiderHistory,
+        path: "/ride-history",
+        icon: RulerDimensionLineIcon,
+        name:"History"
+      },
+   {
+        Component: DriverHistory,
+        path: "/drive-history",
+        icon: RulerDimensionLineIcon,
+        name:"History"
+      },
+      
 ]
 
 

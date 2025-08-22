@@ -1,86 +1,117 @@
-import Logo from "@/components/logo"
-import { Button } from "@/components/ui/button"
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu"
-import { publicRoutes } from "@/utils/publicRoutes"
-import { Link, useLocation } from "react-router"
+  import { Link, useLocation } from "react-router";
+import { Button } from "@/components/ui/button";
+import { Car, User, LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Home,  History } from "lucide-react";
+import { publicRoutes } from "@/utils/publicRoutes";
+  
+  import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+ 
+  import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { userRoutes } from "@/utils/userRoutes";
 
-export default function Navbar() {
-  const { pathname } = useLocation()
-
+const Navbar = () => {
+   const location = useLocation();
   return (
-    <>
-      {/* ---- Desktop Navbar (Top) ---- */}
-      <header className="border-b px-4 md:px-6 bg-card sticky top-0 z-50 hidden md:block">
-        <div className="flex h-16 justify-between items-center">
-          {/* Left side */}
-          <div className="flex items-center gap-3">
-            {/* Logo */}
-            <Link to="/" className="flex items-center text-primary hover:text-primary/90">
-              <Logo />
-            </Link>
+    <div>
+         <nav className="hidden md:flex items-center justify-between px-6 py-4 bg-card border-b shadow-soft">
+      <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary">
+        <Car className="h-6 w-6" />
+        RideShare
+      </Link>
+      
+      <div className="flex items-center gap-6">
+        {publicRoutes.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={cn(
+              "text-sm font-medium transition-colors hover:text-primary",
+              location.pathname === item.path
+                ? "text-primary border-b-2 border-primary pb-1"
+                : "text-muted-foreground"
+            )}
+          >
+            {item.name}
+          </Link>
+        ))}
+      </div>
 
-            {/* Desktop navigation */}
-            <NavigationMenu className="hidden md:flex h-full">
-              <NavigationMenuList className="h-full gap-4">
-                {publicRoutes.map((link, index) => {
-                  const isActive = pathname === link.path
-                  return (
-                    <NavigationMenuItem key={index} className="h-full">
-                      <NavigationMenuLink asChild>
-                        <Link
-                          to={link.path}
-                          className={`inline-flex items-center px-3 text-sm font-medium transition-colors ${
-                            isActive
-                              ? "text-primary border-b-2 border-primary"
-                              : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {link.name}
-                        </Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  )
-                })}
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
+    
+    <div className="flex items-center gap-3">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Avatar className="cursor-pointer ring-2 ring-primary/20 hover:ring-primary transition">
+            <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
 
-          {/* Right side */}
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="text-sm">
-              <Link to="/register">Sign Up</Link>
-            </Button>
-            <Button asChild size="sm" className="text-sm">
-              <Link to="/login">Log In</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+        <DropdownMenuContent align="end" className="w-48 shadow-lg rounded-xl">
+          <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
 
-      {/* ---- Mobile Bottom App Bar ---- */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card shadow-md flex justify-around items-center py-2 md:hidden">
-        {publicRoutes.slice(0, 4).map((link, index) => {
-          const isActive = pathname === link.path
-   
+          {userRoutes.map((item, idx) => (
+            <DropdownMenuItem key={idx} asChild>
+              <Link
+                to={item.path}
+                className="flex items-center gap-2 w-full text-sm"
+              >
+                <item.icon className="h-4 w-4 text-muted-foreground" />
+                {item.name}
+              </Link>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Button variant="outline" size="sm" className="rounded-full">
+        <LogOut className="h-4 w-4 mr-2" />
+        Logout
+      </Button>
+    </div>
+    </nav>
+
+ <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-elevated z-50">
+      <div className="flex items-center justify-around py-2">
+        {publicRoutes.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+          
           return (
             <Link
-              key={index}
-              to={link.path}
-              className={`flex flex-col items-center gap-1 text-xs transition-colors ${
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-              }`}
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors",
+                isActive
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+              )}
             >
-              <div className="h-5 w-5">{<link.icon />}</div>
-              {link.name}
+              <Icon className="h-5 w-5" />
+              <span className="text-xs font-medium">{item.name}</span>
             </Link>
-          )
+          );
         })}
-      </nav>
-    </>
-  )
-}
+      </div>
+    </nav>
+
+
+
+    </div>
+  );
+};
+
+export default Navbar;
+
+
+
+
