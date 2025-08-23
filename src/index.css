@@ -45,7 +45,7 @@
   --radius: 0.625rem;
 
   /* Background & Surfaces */
-  --background: #F5F5F5;          /* light gray background */
+  --background: #fafafaf6;          /* light gray background */
   --foreground: #111827;          /* main text */
   --card: #FFFFFF;                /* card background */
   --card-foreground: #111827;     /* card text */
@@ -53,7 +53,7 @@
   --popover-foreground: #111827;
 
   /* Primary / Brand Color */
-  --primary: #0D99FF;             /* your blue */
+  --primary: #3B46F1;             /* your blue */
   --primary-foreground: #FFFFFF;  /* text on primary */
 
   /* Secondary / Accent */
@@ -68,7 +68,7 @@
   --destructive: #EF4444;
 
   /* Borders & Inputs */
-  --border: #E5E5E5;
+  --border: #e5e5e58b;
   --input: #FFFFFF;
   --ring: #0D99FF;
 

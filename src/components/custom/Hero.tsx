@@ -1,72 +1,35 @@
 
+import { CarCarousel } from "./CarCarousel";
 
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button"; 
-import { MapPin, Car } from "lucide-react";
-
-export default function Hero() {
+const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0D0914] via-[#1B1427] to-[#15101E] text-white px-6">
-      {/* Background Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.3)_0,transparent_70%)] pointer-events-none" />
-
-      <div className="relative z-10 max-w-5xl text-center space-y-6">
-        {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-4xl md:text-6xl font-bold leading-tight"
-        >
-          Book Your Ride <span className="text-indigo-400">Anytime</span>,{" "}
-          <span className="text-pink-400">Anywhere</span>
-        </motion.h1>
-
-        {/* Subheadline */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto"
-        >
-          Safe, reliable, and affordable rides at your fingertips. Whether you’re a rider or a driver, we’ve got you covered.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-        >
-          <Button
-            size="lg"
-            className="bg-indigo-500 hover:bg-indigo-600 text-white flex items-center gap-2 px-6 py-3 rounded-2xl shadow-lg"
-          >
-            <MapPin size={20} />
-            Book a Ride
-          </Button>
-
-          <Button
-            size="lg"
-            variant="outline"
-            className="border border-gray-400 text-white hover:bg-gray-800 flex items-center gap-2 px-6 py-3 rounded-2xl"
-          >
-            <Car size={20} />
-            Become a Driver
-          </Button>
-        </motion.div>
+    <div className="min-h-screen relative overflow-hidden flex flex-col">
+      {/* Message Section - pushed to top area */}
+      <div className="pt-16 md:pt-28 text-center px-4 z-20">
+        <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+          Easy And Fast Way To <span className="text-primary">Book</span> Your Ride
+        </h2>
+        <h3 className="text-lg md:text-xl text-gray-500 mt-3 max-w-2xl mx-auto">
+          Get a ride anytime, anywhere. Whether you're heading to work, a night out, or the airport – 
+          our reliable drivers are just a tap away.
+        </h3>
       </div>
 
-      {/* Decorative Car Icon / Illustration */}
-      <motion.div
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="absolute bottom-10 right-10 hidden md:block"
-      >
-        <Car size={80} className="text-indigo-400/50" />
-      </motion.div>
-    </section>
+      {/* Bottom Section with Circle + Carousel */}
+      <div className="absolute bottom-[-1%] w-full">
+        <div className="relative flex justify-center items-center">
+       
+          <div className="w-72 h-72 md:w-96 md:h-96 bg-primary rounded-full absolute -top-16 mx-auto" />
+
+          {/* Car carousel on top */}
+          <div className="relative z-10 w-full max-w-5xl mx-auto">
+            <CarCarousel />
+          </div>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default Hero;
+

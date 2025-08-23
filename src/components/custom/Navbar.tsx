@@ -20,8 +20,8 @@ import { userRoutes } from "@/utils/userRoutes";
 const Navbar = () => {
    const location = useLocation();
   return (
-    <div>
-         <nav className="hidden md:flex items-center justify-between px-6 py-4 bg-card border-b shadow-soft">
+    <div className="">
+         <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md hidden md:flex items-center justify-between px-6 py-4  border-b shadow-soft">
       <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary">
         <Car className="h-6 w-6" />
         RideShare
