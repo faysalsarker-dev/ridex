@@ -1,8 +1,7 @@
   import { Link, useLocation } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Car, User, LogOut } from "lucide-react";
+import { Car, User, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Home,  History } from "lucide-react";
 import { publicRoutes } from "@/utils/publicRoutes";
   
   import {
@@ -16,9 +15,23 @@ import { publicRoutes } from "@/utils/publicRoutes";
  
   import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { userRoutes } from "@/utils/userRoutes";
+import { authApi, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api";
+import { useAppDispatch } from "@/redux/hooks";
 
 const Navbar = () => {
    const location = useLocation();
+   const [logout] = useLogoutMutation();
+   const { data: userInfo } = useUserInfoQuery(undefined);
+  const dispatch = useAppDispatch();
+
+
+   const handleLogout = async () => {
+       await logout(undefined);
+    dispatch(authApi.util.resetApiState());
+   }
+
+
+
   return (
     <div className="">
          <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md hidden md:flex items-center justify-between px-6 py-4  border-b shadow-soft">
@@ -45,38 +58,80 @@ const Navbar = () => {
       </div>
 
     
-    <div className="flex items-center gap-3">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Avatar className="cursor-pointer ring-2 ring-primary/20 hover:ring-primary transition">
-            <AvatarImage src="https://github.com/shadcn.png" alt="User" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
+   <div className="flex items-center gap-3">
+  {userInfo?.data ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Avatar className="cursor-pointer ring-2 ring-primary/30 hover:ring-primary/60 transition-all duration-200 shadow-sm hover:shadow-md">
+          {/* <AvatarImage src="https://github.com/shadcn.png" alt="User" /> */}
+        <AvatarFallback className="bg-primary/10 text-primary font-medium">
+  {userInfo?.data?.name
+    ? userInfo.data.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "?"}
+</AvatarFallback>
 
-        <DropdownMenuContent align="end" className="w-48 shadow-lg rounded-xl">
-          <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+        </Avatar>
+      </DropdownMenuTrigger>
 
-          {userRoutes.map((item, idx) => (
-            <DropdownMenuItem key={idx} asChild>
-              <Link
-                to={item.path}
-                className="flex items-center gap-2 w-full text-sm"
-              >
-                <item.icon className="h-4 w-4 text-muted-foreground" />
-                {item.name}
-              </Link>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <DropdownMenuContent
+        align="end"
+        className="w-56 rounded-2xl shadow-xl border border-muted/20 bg-white/95 backdrop-blur-sm"
+      >
+        <DropdownMenuLabel className="font-semibold text-sm text-primary">
+          My Account
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
 
-      <Button variant="outline" size="sm" className="rounded-full">
-        <LogOut className="h-4 w-4 mr-2" />
-        Logout
+        {userRoutes.map((item, idx) => (
+          <DropdownMenuItem
+            key={idx}
+            asChild
+            className="hover:bg-primary/10 transition rounded-lg px-2"
+          >
+            <Link
+              to={item.path}
+              className="flex items-center gap-2 w-full text-sm text-muted-foreground hover:text-primary"
+            >
+              <item.icon className="h-4 w-4" />
+              {item.name}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          onClick={handleLogout}
+          className="text-red-600 hover:bg-red-50 rounded-lg transition px-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : (
+    <>
+      <Button
+        className="bg-primary text-white hover:bg-primary/90 rounded-full px-5 shadow-md transition"
+        size="sm"
+      >
+        Login
       </Button>
-    </div>
+      <Button
+        className="bg-white text-primary border border-primary/30 hover:border-primary hover:bg-primary/5 rounded-full px-5 shadow-sm transition"
+        variant="outline"
+        size="sm"
+      >
+        Register
+      </Button>
+    </>
+  )}
+</div>
+
     </nav>
 
  <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-elevated z-50">

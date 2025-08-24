@@ -74,29 +74,14 @@ export const CarCarousel = () => {
       <div className="relative w-full max-w-4xl flex items-center justify-center">
         {cars.map((car, index) => {
           const position = getCarPosition(index);
-          const isFeatured = position === "center";
+          
 
           return (
             <div
               key={car.id}
               className={`absolute transition-all duration-700 ease-out ${getCarStyle(position)}`}
             >
-              {/* Featured Car Price Badge */}
-              {isFeatured && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-12 z-30">
-                  <div className="bg-primary text-white px-8 py-4 rounded-full shadow-lg">
-                    <div className="text-center">
-                      <div className="font-bold text-lg">{car.name}</div>
-                      <div className="text-2xl font-bold">
-                        {car.price}<span className="text-sm">/day</span>
-                      </div>
-                      <Button size="sm" className="mt-2">
-                        Rent
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
+      
 
               <img
                 src={car.image}
