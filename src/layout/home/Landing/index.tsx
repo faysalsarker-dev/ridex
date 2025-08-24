@@ -8,7 +8,7 @@ import ServiceHighlights from '@/components/custom/ServiceHighlights';
 
 const index = () => {
     return (
-        <div className='max-w-6xl mx-auto px-2'>
+        <div className='max-w-6xl mx-auto px-2 overflow-x-hidden'>
             <Hero/>
             <HowItWorks/>
             <AboutUs/>

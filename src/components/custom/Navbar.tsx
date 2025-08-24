@@ -119,7 +119,7 @@ const Navbar = () => {
         className="bg-primary text-white hover:bg-primary/90 rounded-full px-5 shadow-md transition"
         size="sm"
       >
-        Login
+       <Link to={'/login'}> Login</Link>
       </Button>
       <Button
         className="bg-white text-primary border border-primary/30 hover:border-primary hover:bg-primary/5 rounded-full px-5 shadow-sm transition"

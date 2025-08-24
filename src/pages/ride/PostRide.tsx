@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MapPin, DollarSign, Calendar, Clock, Users } from "lucide-react";
+import { MapPin, DollarSign, Clock, Users } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -36,8 +36,7 @@ export default function PostRide() {
     LocationData[]
   >([]);
 
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+
   const [fare, setFare] = useState("");
   const [passengers, setPassengers] = useState("1");
   const [notes, setNotes] = useState("");
@@ -135,8 +134,6 @@ export default function PostRide() {
         lng: destination.lng,
         address: destination.address,
       },
-      date,
-      time,
       fare: parseFloat(fare),
       passengers: parseInt(passengers),
       notes,
@@ -153,192 +150,145 @@ export default function PostRide() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="shadow-lg rounded-2xl border-border/50">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold">Post a Ride</CardTitle>
-            <CardDescription className="text-lg">
-              Find a driver to take you to your destination
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Pickup */}
-              <div className="space-y-2">
-                <Label htmlFor="pickup" className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  Pickup Location
-                </Label>
-                <Input
-                  id="pickup"
-                  placeholder="Auto-detected or enter manually"
-                  className="h-12 rounded-xl border-border/50"
-                  value={pickupInput}
-                  onChange={(e) => setPickupInput(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Destination */}
-              <div className="relative space-y-2">
-                <Label htmlFor="destination" className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-destructive" />
-                  Destination
-                </Label>
-                <Input
-                  id="destination"
-                  placeholder="Enter destination"
-                  className="h-12 rounded-xl border-border/50"
-                  value={destinationInput}
-                  onChange={handleDestinationChange}
-                  required
-                />
-                {destinationSuggestions.length > 0 && (
-                  <ul className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg max-h-40 overflow-auto">
-                    {destinationSuggestions.map((s, idx) => (
-                      <li
-                        key={idx}
-                        className="p-2 hover:bg-primary/10 cursor-pointer"
-                        onClick={() => {
-                          setDestination(s);
-                          setDestinationInput(s.address);
-                          setDestinationSuggestions([]);
-                        }}
-                      >
-                        {s.address}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              {/* Date & Time */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-  <Label htmlFor="time" className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-primary" />
-                    Time
+   
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="shadow-lg rounded-2xl border-border/50">
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl font-bold">Post a Ride</CardTitle>
+              <CardDescription className="text-lg">
+                Find a driver to take you to your destination
+              </CardDescription>
+            </CardHeader>
+  
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Pickup */}
+                <div className="space-y-2">
+                  <Label htmlFor="pickup" className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    Pickup Location
                   </Label>
-                  <div>
-            <Select>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="Hour" />
-  </SelectTrigger>
-  <SelectContent>
-    {
-      Array.from({ length: 12 }, (_, i) => (
-        <SelectItem key={i} value={`hour-${i+1}`}>
-          {i+1}:00
-        </SelectItem>
-      ))
-    }
-  </SelectContent>
-</Select>
-
-
-        <Select>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="Min" />
-  </SelectTrigger>
-  <SelectContent>
-    {
-      Array.from({ length: 60 }, (_, i) => (
-        <SelectItem key={i} value={`min-${i+1}`}>
-          {i+1}:00
-        </SelectItem>
-      ))
-    }
-  </SelectContent>
-</Select>
-
-
-        <Select>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="zoon" />
-  </SelectTrigger>
-  <SelectContent>
-      <SelectItem value={`AM`}>
-          AM
-        </SelectItem>
-      <SelectItem value={`PM`}>
-          PM
-        </SelectItem>
-  </SelectContent>
-</Select>
-
-                  </div>
-                
+                  <Input
+                    id="pickup"
+                    placeholder="Auto-detected or enter manually"
+                    className="h-12 rounded-xl border-border/50"
+                    value={pickupInput}
+                    onChange={(e) => setPickupInput(e.target.value)}
+                    required
+                  />
+                </div>
+  
+                {/* Destination */}
+                <div className="relative space-y-2">
+                  <Label htmlFor="destination" className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-destructive" />
+                    Destination
+                  </Label>
+                  <Input
+                    id="destination"
+                    placeholder="Enter destination"
+                    className="h-12 rounded-xl border-border/50"
+                    value={destinationInput}
+                    onChange={handleDestinationChange}
+                    required
+                  />
+                  {destinationSuggestions.length > 0 && (
+                    <ul className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg max-h-40 overflow-auto">
+                      {destinationSuggestions.map((s, idx) => (
+                        <li
+                          key={idx}
+                          className="p-2 hover:bg-primary/10 cursor-pointer"
+                          onClick={() => {
+                            setDestination(s);
+                            setDestinationInput(s.address);
+                            setDestinationSuggestions([]);
+                          }}
+                        >
+                          {s.address}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+  
     
-                </div>
-              </div>
+  
+                {/* Fare & Passengers */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="fare" className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-success" />
+                      Fare
+                    </Label>
+                    <Input
+                      id="fare"
+                      type="number"
+                      placeholder="25.00"
+                      className="h-12 rounded-xl border-border/50"
+                      value={fare}
+                      onChange={(e) => setFare(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label
+                      htmlFor="passengers"
+                      className="flex items-center gap-2"
+                    >
+                      <Users className="h-4 w-4 text-primary" />
+                      Passengers
+                    </Label>
+                 
 
-              {/* Fare & Passengers */}
-              <div className="grid grid-cols-2 gap-4">
+                     <Select>
+      <SelectTrigger className="w-full" defaultChecked={1}>
+        <SelectValue placeholder="Select Passengers" />
+      </SelectTrigger>
+      <SelectContent>
+        {
+          Array.from({ length: 3 }, (_, i) => i + 1).map((num) => (
+            <SelectItem key={num} value={num.toString()}>
+              {num} {num === 1 ? "Passenger" : "Passengers"}
+            </SelectItem>
+          ))
+        }
+      
+      </SelectContent>
+    </Select>
+                  </div>
+                </div>
+  
+                {/* Notes */}
                 <div>
-                  <Label htmlFor="fare" className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-success" />
-                    Fare
-                  </Label>
-                  <Input
-                    id="fare"
-                    type="number"
-                    placeholder="25.00"
-                    className="h-12 rounded-xl border-border/50"
-                    value={fare}
-                    onChange={(e) => setFare(e.target.value)}
-                    required
+                  <Label htmlFor="notes">Notes (Optional)</Label>
+                  <Textarea
+                    id="notes"
+                    placeholder="Any special instructions..."
+                    className="min-h-[100px] rounded-xl border-border/50"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
                   />
                 </div>
-                <div>
-                  <Label
-                    htmlFor="passengers"
-                    className="flex items-center gap-2"
-                  >
-                    <Users className="h-4 w-4 text-primary" />
-                    Passengers
-                  </Label>
-                  <Input
-                    id="passengers"
-                    type="number"
-                    min={1}
-                    max={4}
-                    value={passengers}
-                    onChange={(e) => setPassengers(e.target.value)}
-                    className="h-12 rounded-xl border-border/50"
-                    required
-                  />
-                </div>
-              </div>
+  
+                <Button
+                  type="submit"
+                  className="w-full h-12 rounded-xl shadow-md"
+                  disabled={loading}
+                >
+                  {loading ? "Posting Ride..." : "Post Ride Request"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
 
-              {/* Notes */}
-              <div>
-                <Label htmlFor="notes">Notes (Optional)</Label>
-                <Textarea
-                  id="notes"
-                  placeholder="Any special instructions..."
-                  className="min-h-[100px] rounded-xl border-border/50"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
-              </div>
 
-              <Button
-                type="submit"
-                className="w-full h-12 rounded-xl shadow-md"
-                disabled={loading}
-              >
-                {loading ? "Posting Ride..." : "Post Ride Request"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
+
   );
 }

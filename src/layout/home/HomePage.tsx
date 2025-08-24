@@ -15,7 +15,7 @@ const HomePage = () => {
       >
         
       </motion.main> */}
-        <main className="min-h-screen bg-background mt-14">
+        <main className="min-h-screen bg-background md:mt-14">
             <Outlet/>
 
         </main>

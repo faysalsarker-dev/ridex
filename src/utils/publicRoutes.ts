@@ -2,8 +2,8 @@ import index from "@/layout/home/Landing";
 import DriverRides from "@/pages/driver/DriverRides";
 import DriverHistory from "@/pages/history/DriverHistory";
 import RiderHistory from "@/pages/history/RiderHistory";
-import PostRide from "@/pages/ride/PostRide";
-import { Home, RulerDimensionLineIcon} from 'lucide-react';
+import Rides from "@/pages/ride/Rides";
+import { Home, MapPlus, RulerDimensionLineIcon} from 'lucide-react';
 
 export const publicRoutes = [
    {
@@ -20,10 +20,10 @@ export const publicRoutes = [
         name:"available"
       },
    {
-        Component: PostRide,
+        Component: Rides,
         path: "/rides",
-        icon: RulerDimensionLineIcon,
-        name:"post ride"
+        icon: MapPlus ,
+        name:"Post ride"
       },
 
    {
