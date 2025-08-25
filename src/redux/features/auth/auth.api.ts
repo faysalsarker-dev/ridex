@@ -23,6 +23,23 @@ export const authApi = baseApi.injectEndpoints({
         data: userInfo,
       }),
     }),
+    update: builder.mutation({
+      query: (userInfo) => ({
+        url: "/user/update",
+        method: "PUT",
+        data: userInfo,
+      }),
+     invalidatesTags: ["USER"],
+
+    }),
+    changePassword: builder.mutation({
+      query: (userInfo) => ({
+        url: "/user/change-password",
+        method: "PUT",
+        data: userInfo,
+      }),
+     invalidatesTags: ["USER"],
+    }),
     userInfo: builder.query({
       query: () => ({
         url: "/user/me",
@@ -38,4 +55,6 @@ export const {
   useLoginMutation,
   useUserInfoQuery,
   useLogoutMutation,
+  useUpdateMutation,
+  useChangePasswordMutation
 } = authApi;

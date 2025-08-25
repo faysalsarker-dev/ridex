@@ -4,13 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone, MessageSquare, Navigation, Clock, DollarSign } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 type RideStatus = "accepted" | "enroute" | "completed" | "cancelled";
 
 const ActiveRide = () => {
   const [status, setStatus] = useState<RideStatus>("accepted");
-  const { toast } = useToast();
 
   const currentRide = {
     id: "1",
@@ -34,10 +32,7 @@ const ActiveRide = () => {
       cancelled: "Ride has been cancelled."
     };
     
-    toast({
-      title: "Status Updated",
-      description: statusMessages[newStatus],
-    });
+
   };
 
   const getStatusColor = (status: RideStatus) => {

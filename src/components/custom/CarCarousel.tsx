@@ -1,7 +1,6 @@
 
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import redCar from "@/assets/red-car.png";
 import blueBugatti from "@/assets/blue-bugatti.png";
 import silverCar from "@/assets/silver-car.png";

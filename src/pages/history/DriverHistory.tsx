@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Clock, DollarSign, Star, Calendar, TrendingUp } from "lucide-react";
+import { MapPin,  DollarSign, Star, Calendar, TrendingUp } from "lucide-react";
 
 const DriverHistory = () => {
   const rideHistory = [

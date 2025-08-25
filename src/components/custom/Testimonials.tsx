@@ -1,13 +1,10 @@
 
 
 import React from 'react';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Pagination, Autoplay } from 'swiper/modules';
+
 import type { Testimonial } from '../interfaces';
 import TestimonialCard from './TestimonialCard';
 

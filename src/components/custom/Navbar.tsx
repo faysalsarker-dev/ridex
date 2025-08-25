@@ -1,6 +1,6 @@
   import { Link, useLocation } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Car, User, LogOut, Settings } from "lucide-react";
+import { Car, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { publicRoutes } from "@/utils/publicRoutes";
   
@@ -13,7 +13,7 @@ import { publicRoutes } from "@/utils/publicRoutes";
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
  
-  import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+  import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { userRoutes } from "@/utils/userRoutes";
 import { authApi, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import { useAppDispatch } from "@/redux/hooks";
@@ -67,10 +67,10 @@ const Navbar = () => {
         <AvatarFallback className="bg-primary/10 text-primary font-medium">
   {userInfo?.data?.name
     ? userInfo.data.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
+      .split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
     : "?"}
 </AvatarFallback>
 
