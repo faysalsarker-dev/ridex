@@ -2,6 +2,7 @@ import index from "@/layout/home/Landing";
 import DriverRides from "@/pages/driver/DriverRides";
 import DriverHistory from "@/pages/history/DriverHistory";
 import RiderHistory from "@/pages/history/RiderHistory";
+import InRide from "@/pages/ride/InRide";
 import Rides from "@/pages/ride/Rides";
 import { Home, MapPlus, RulerDimensionLineIcon} from 'lucide-react';
 
@@ -35,6 +36,12 @@ export const publicRoutes = [
    {
         Component: DriverHistory,
         path: "/drive-history",
+        icon: RulerDimensionLineIcon,
+        name:"History"
+      },
+   {
+        Component: InRide,
+        path: "/on-ride",
         icon: RulerDimensionLineIcon,
         name:"History"
       },
