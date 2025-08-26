@@ -48,6 +48,14 @@ export const rideApi = baseApi.injectEndpoints({
       }),
       providesTags: ["RIDE"],
     }),
+
+    driverHistory: builder.query({
+      query: () => ({
+        url: "/rides/driver-history",
+        method: "GET",
+      }),
+      providesTags: ["RIDE"],
+    }),
     getAvailableRides: builder.query({
       query: () => ({
         url: "/rides/available",
@@ -64,4 +72,5 @@ export const {
   useRideHistoryQuery,
   useGetAvailableRidesQuery,
   useAcceptRideMutation,
+  useDriverHistoryQuery,
 } = rideApi;

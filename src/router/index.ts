@@ -6,6 +6,7 @@ import { publicRoutes } from "@/utils/publicRoutes";
 import { createBrowserRouter } from "react-router";
 import { generateRoutes } from "./generateRoutes";
 import { userRoutes } from "@/utils/userRoutes";
+import { RoleBaseRoutes } from "@/utils/RoleBaseRoute";
 
 export const router = createBrowserRouter([
   {
@@ -13,8 +14,9 @@ export const router = createBrowserRouter([
     path: "/",
     children: [
    ...generateRoutes(publicRoutes),
-   ...generateRoutes(userRoutes)
-
+   ...generateRoutes(userRoutes),
+   ...generateRoutes(RoleBaseRoutes("driver")),
+   ...generateRoutes(RoleBaseRoutes("rider")),
     ],
 
    

@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 
 import {
@@ -23,8 +22,7 @@ import { ChangePassword, DriverInfo, UserInfo } from "./UserDialog";
 const Profile = () => {
   const { data, isLoading } = useUserInfoQuery(undefined);
   const user = data?.data;
-  const [isDriver] = useState(user?.role === "driver");
-
+console.log(user, user?.role === "driver");
 
   if (isLoading) {
     return (
@@ -83,15 +81,15 @@ const Profile = () => {
 
               {/* Badges */}
               <div className="flex justify-center flex-wrap gap-2 mt-3">
-                {isDriver ? (
+                {user?.role === "driver" ? (
                   <Badge className="bg-gradient-to-r from-primary to-blue-500 text-white">
                     Driver
                   </Badge>
                 ) : (
                   <Badge variant="secondary">Rider</Badge>
                 )}
-                {isDriver &&
-                  (user?.isVerified ? (
+                {user?.role === "driver" &&
+                  (user?.driverProfile?.isApproved ? (
                     <Badge
                       variant="outline"
                       className="gap-1 bg-green-100 text-green-600 border-green-200"
@@ -125,7 +123,7 @@ const Profile = () => {
                   <span className="font-medium">{user?.rating || "N/A"}</span>
                 </div>
               </div>
-              {isDriver && (
+              {user?.role === "driver" && (
                 <div className="flex justify-between py-3 text-sm">
                   <span className="text-muted-foreground">Total Rides</span>
                   <span className="font-medium">{user?.totalRides || 0}</span>
@@ -145,7 +143,7 @@ const Profile = () => {
           {/* Personal Info */}
           <UserInfo user={user} />
           {/* Driver Info */}
-          {isDriver && (
+          {user?.role === "driver" && (
          <DriverInfo user={user} />
           )}
 

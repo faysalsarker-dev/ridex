@@ -96,3 +96,58 @@ export  type DriverFormData = {
   };
 
   export type ApiError = { data?: { message?: string }; message?: string };
+
+
+export interface ILocation {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
+  
+export type RideStatus =
+  | 'requested'
+  | 'accepted'
+  | 'picked_up'
+  | 'in_transit'
+  | 'completed'
+  | 'cancelled_by_rider'
+  | 'cancelled_by_driver';
+
+
+
+export interface IRideTimeline {
+  requestedAt?: Date;
+  acceptedAt?: Date;
+  pickedUpAt?: Date;
+  completedAt?: Date;
+  cancelledAt?: Date;
+}
+
+export interface IRide {
+  _id: string;
+
+  rider: string;
+  driver?: string | null;
+
+  status:
+    | 'requested'
+    | 'accepted'
+    | 'picked_up'
+    | 'in_transit'
+    | 'completed'
+    | 'cancelled_by_rider'
+    | 'cancelled_by_driver';
+
+  pickupLocation: ILocation;
+  destinationLocation: ILocation;
+
+  fare?: number;
+
+  cancelledBy?: 'rider' | 'driver' | 'admin';
+
+  rideTimeline?: IRideTimeline;
+
+  createdAt?: string;
+  updatedAt?: string;
+}

@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 
 
 
-const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel: (id: string) => void }) => {
+const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: string) => void }) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "requested":

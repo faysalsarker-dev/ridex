@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapPin, Navigation } from 'lucide-react';
 
 // Fix for default markers in react-leaflet
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-icon-2x.png',
@@ -63,10 +63,10 @@ export default function MapView({ pickupLocation, destinationLocation, className
   const mapRef = useRef<L.Map>(null);
 
   // Calculate center and zoom to fit both locations with better bounds
-  const bounds: L.LatLngBoundsExpression = [
+  const bounds: L.LatLngBoundsExpression = useMemo(() => [
     [pickupLocation.lat, pickupLocation.lng],
     [destinationLocation.lat, destinationLocation.lng]
-  ];
+  ], [pickupLocation, destinationLocation]);
 
   // Enhanced polyline path with intermediate points for better visualization
   const polylinePositions: L.LatLngExpression[] = [
@@ -82,7 +82,7 @@ export default function MapView({ pickupLocation, destinationLocation, className
         maxZoom: 15 // Prevent over-zooming
       });
     }
-  }, [pickupLocation, destinationLocation]);
+  }, [bounds,pickupLocation, destinationLocation]);
 
   return (
     <div className={`relative h-full w-full ${className}`}>

@@ -17,6 +17,7 @@ import { publicRoutes } from "@/utils/publicRoutes";
 import { userRoutes } from "@/utils/userRoutes";
 import { authApi, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import { useAppDispatch } from "@/redux/hooks";
+import { RoleBaseRoutes } from "@/utils/RoleBaseRoute";
 
 const Navbar = () => {
    const location = useLocation();
@@ -26,7 +27,7 @@ const Navbar = () => {
 
 
    const handleLogout = async () => {
-       await logout(undefined);
+       await logout(undefined).unwrap();
     dispatch(authApi.util.resetApiState());
    }
 
@@ -35,13 +36,27 @@ const Navbar = () => {
   return (
     <div className="">
          <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md hidden md:flex items-center justify-between px-6 py-4  border-b shadow-soft">
-      <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary">
+      <Link to="/" className="flex items-center  text-xl font-bold text-primary">
         <Car className="h-6 w-6" />
-        RideShare
+        Ride<span className="text-accent">X</span>
       </Link>
       
       <div className="flex items-center gap-6">
         {publicRoutes.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={cn(
+              "text-sm font-medium transition-colors hover:text-primary",
+              location.pathname === item.path
+                ? "text-primary border-b-2 border-primary pb-1"
+                : "text-muted-foreground"
+            )}
+          >
+            {item.name}
+          </Link>
+        ))}
+        {RoleBaseRoutes(userInfo?.data?.role).map((item) => (
           <Link
             key={item.path}
             to={item.path}
