@@ -16,6 +16,7 @@ const onCancel = async (rideId: string) => {
   try {
     await cancelRide({ rideId }).unwrap(); 
     toast.success("Ride cancelled successfully!");
+      localStorage.removeItem("rideId");
   } catch (err: any) {
     console.error("Failed to cancel ride:", err);
     toast.error(err?.data?.message || "Something went wrong while cancelling ride.");
@@ -36,7 +37,7 @@ const onCancel = async (rideId: string) => {
       </div>
       )}
       <AnimatedList className="space-y-4">
-        {data?.data?.map((ride:Ride) => (
+        {data?.data?.slice(0, 5).map((ride:Ride) => (
           <RideHistoryCard key={ride._id} ride={ride} onCancel={onCancel}/>
         ))}
       </AnimatedList>

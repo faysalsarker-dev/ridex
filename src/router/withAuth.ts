@@ -1,62 +1,54 @@
-import type { ComponentType } from "react";
-import  { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
-import { DriverRoutes, RiderRoutes } from "@/utils/RoleBaseRoute";
+import { useNavigate, useLocation } from "react-router";
+import type { ComponentType } from "react";
+import { useEffect } from "react";
 
-interface WithAuthOptions {
-  requiredRole?: "driver" | "rider";
-}
+type TRole = "driver" | "rider" | "admin";
 
-export const withAuth = (Component: ComponentType, options?: WithAuthOptions) => {
-  const { requiredRole } = options || {};
-
-  return function AuthWrapper() {
-    const location = useLocation();
+// HOC with generic typing
+export function withAuth<P extends object>(
+  WrappedComponent: ComponentType<P>,
+  requiredRole?: TRole
+) {
+  return function AuthWrapper(props: P) {
     const navigate = useNavigate();
+    const location = useLocation();
     const { data, isLoading } = useUserInfoQuery(undefined);
 
-    // Wait until user info is loaded
+    const user = data?.data;
+
     useEffect(() => {
-      if (isLoading) return;
+      if (!isLoading) {
+        if (!user?.email) {
+          navigate("/login", { replace: true, state: { from: location } });
+          return;
+        }
 
-      const user = data?.data;
+        if (user?.isBlocked) {
+          navigate("/blocked", { replace: true });
+          return;
+        }
 
-      // 1️⃣ Not logged in
-      if (!user?.email) {
-        navigate("/login", { replace: true, state: { from: location } });
-        return;
+        if (requiredRole && requiredRole !== user?.role) {
+          navigate("/", { replace: true });
+          return;
+        }
+
+        const onRide = localStorage.getItem("onRide");
+        if (onRide && location.pathname !== "/rider/on-ride") {
+          navigate("/rider/on-ride", { replace: true });
+        }
       }
+    }, [isLoading, user, requiredRole, navigate, location]);
 
-      // 2️⃣ Blocked user
-      if (user.isBlocked) {
-        navigate("/blocked", { replace: true });
-        return;
-      }
+    if (isLoading) {
+      return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    }
 
-      // 3️⃣ Role check
-      if (requiredRole && user.role !== requiredRole) {
-        navigate("/unauthorized", { replace: true });
-        return;
-      }
+    if (!user?.email) {
+      return null; // avoids flicker while redirecting
+    }
 
-      // 4️⃣ Route access check
-      const roleRoutes = user.role === "driver" ? DriverRoutes : RiderRoutes;
-      const isAllowedRoute = roleRoutes.some((route) => route.path === location.pathname);
-      if (!isAllowedRoute) {
-        navigate("/", { replace: true });
-        return;
-      }
-
-      // 5️⃣ Ongoing ride check
-      const onRide = localStorage.getItem("onRide");
-      if (onRide && location.pathname !== "/rider/on-ride") {
-        navigate("/rider/on-ride", { replace: true });
-        return;
-      }
-    }, [data, isLoading, navigate, location, requiredRole]);
-
-
-    return <Component />;
+    return <WrappedComponent {...props} />;
   };
-};
+}

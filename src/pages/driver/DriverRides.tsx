@@ -4,17 +4,22 @@ import { useAcceptRideMutation, useGetAvailableRidesQuery } from "@/redux/featur
 import {AvailableRidesCard, AvailableRidesCardSkeleton} from "@/components/custom/AvailableRidesCard";
 import type { ApiError, Ride } from "@/components/interfaces";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const DriverRides = () => {
-const { data: availableRides ,isLoading } = useGetAvailableRidesQuery(undefined);
+const { data: availableRides ,isLoading } = useGetAvailableRidesQuery(undefined,{
+    pollingInterval: 10000, 
+  });
 const [acceptRide] = useAcceptRideMutation();
 
-
+const navigate = useNavigate();
 
   const handleAcceptRide = async(rideId: string) => {
 
   try {
-     await acceptRide({rideId}).unwrap();
+    const res = await acceptRide({rideId}).unwrap();
+        localStorage.setItem("rideId", JSON.stringify(res?.data?._id));
+      navigate(`/rider/on-ride?ride=${res?.data?._id}`);
       toast.success("Accepted ride");
     } catch (err: unknown) {
 

@@ -59,19 +59,28 @@ const createCustomIcon = (type: 'pickup' | 'destination') => {
   });
 };
 
-export default function MapView({ pickupLocation, destinationLocation, className = "" }: MapViewProps) {
+export default function MapView({   pickupLocation = {
+      lat: 26.8103,
+      lng: 90.4125,
+      address: "Gulshan, Dhaka"
+    }, 
+  destinationLocation = {
+      lat: 24.2092,
+      lng: 90.4725,
+      address: "Dhanmondi, Dhaka"
+    }, className = "" }: MapViewProps) {
   const mapRef = useRef<L.Map>(null);
 
   // Calculate center and zoom to fit both locations with better bounds
   const bounds: L.LatLngBoundsExpression = useMemo(() => [
-    [pickupLocation.lat, pickupLocation.lng],
-    [destinationLocation.lat, destinationLocation.lng]
+    [pickupLocation?.lat, pickupLocation?.lng],
+    [destinationLocation?.lat, destinationLocation?.lng]
   ], [pickupLocation, destinationLocation]);
 
   // Enhanced polyline path with intermediate points for better visualization
   const polylinePositions: L.LatLngExpression[] = [
-    [pickupLocation.lat, pickupLocation.lng],
-    [destinationLocation.lat, destinationLocation.lng]
+    [pickupLocation?.lat, pickupLocation?.lng],
+    [destinationLocation?.lat, destinationLocation?.lng]
   ];
 
   useEffect(() => {
@@ -107,13 +116,13 @@ export default function MapView({ pickupLocation, destinationLocation, className
     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   />
   {/* Pickup Marker */}
-  <Marker position={[pickupLocation.lat, pickupLocation.lng]} icon={createCustomIcon('pickup')}>
-    <Popup>Pickup: {pickupLocation.address}</Popup>
+  <Marker position={[pickupLocation?.lat, pickupLocation?.lng]} icon={createCustomIcon('pickup')}>
+    <Popup>Pickup: {pickupLocation?.address}</Popup>
   </Marker>
 
   {/* Destination Marker */}
-  <Marker position={[destinationLocation.lat, destinationLocation.lng]} icon={createCustomIcon('destination')}>
-    <Popup>Destination: {destinationLocation.address}</Popup>
+  <Marker position={[destinationLocation?.lat, destinationLocation?.lng]} icon={createCustomIcon('destination')}>
+    <Popup>Destination: {destinationLocation?.address}</Popup>
   </Marker>
 
   {/* Route Line */}

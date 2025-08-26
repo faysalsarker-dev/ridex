@@ -5,6 +5,7 @@ import RideHistoryCard from "@/components/custom/RideHistoryCard";
 import { AnimatedList } from "@/components/magicui/animated-list";
 import { useRideHistoryQuery } from "@/redux/features/ride/ride.api";
 import RideHistoryCardSkeleton from "@/components/custom/RideHistoryCardSkeleton";
+import type { Ride } from "@/components/interfaces";
 
 
 
@@ -17,6 +18,10 @@ const {data ,isLoading }=useRideHistoryQuery(undefined)
 
 
 
+  const totalSpent = data?.data?.filter((ride: Ride) => ride?.status === "completed")
+    .reduce((total:number, ride:Ride) => total + ride.fare, 0);
+
+  const completedRides = data?.data?.filter((ride:Ride) => ride?.status === "completed").length;
 
 
 
@@ -45,7 +50,7 @@ const {data ,isLoading }=useRideHistoryQuery(undefined)
           <Card className="text-center shadow-soft rounded-2xl border-border/50">
             <CardContent className="pt-6">
               <DollarSign className="h-8 w-8 mx-auto text-success mb-2" />
-              <p className="text-2xl font-bold">$1234</p>
+              <p className="text-2xl font-bold">${totalSpent}</p>
               <p className="text-sm text-muted-foreground">Total Spent</p>
             </CardContent>
           </Card>
@@ -59,7 +64,7 @@ const {data ,isLoading }=useRideHistoryQuery(undefined)
           <Card className="text-center shadow-soft rounded-2xl border-border/50">
             <CardContent className="pt-6">
               <MapPin className="h-8 w-8 mx-auto text-primary mb-2" />
-              <p className="text-2xl font-bold">{1243}</p>
+              <p className="text-2xl font-bold">{completedRides}</p>
               <p className="text-sm text-muted-foreground">Completed Rides</p>
             </CardContent>
           </Card>

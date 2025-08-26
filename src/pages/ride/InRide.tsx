@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import MapView from '@/components/custom/MapView';
+import { lazy, Suspense, useEffect, useState } from "react";
+
+const MapView = lazy(() => import("@/components/custom/MapView"));
+
 import { RideDetailsCard } from '@/components/custom/RideDetailsCard';
 import { SOSButton } from '@/components/custom/SOSButton';
+import { useCancelRideMutation, useChangeRideStatusMutation, useGetSingleRideQuery } from '@/redux/features/ride/ride.api';
+import { useNavigate, useSearchParams } from 'react-router';
+import type { ApiError } from '@/components/interfaces';
+import toast from 'react-hot-toast';
 
 
 interface Location {
@@ -11,43 +17,70 @@ interface Location {
   address: string;
 }
 
-interface RideData {
-  pickupLocation: Location;
-  destinationLocation: Location;
-  estimatedFare: string;
-  passengers: number;
-  status: 'active' | 'cancelled' | 'completed';
-}
+
 
 const InRide = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [rideData, setRideData] = useState<RideData>({
-    pickupLocation: {
-      lat: 26.8103,
-      lng: 90.4125,
-      address: "Gulshan, Dhaka"
-    },
-    destinationLocation: {
-      lat: 24.2092,
-      lng: 90.4725,
-      address: "Dhanmondi, Dhaka"
-    },
-    estimatedFare: "৳250",
-    passengers: 2,
-    status: 'active'
-  });
+   const [searchParams] = useSearchParams();
+  const [rideId, setRideId] = useState<string | null>(null);
 
-  // Simulate loading state
+ 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
+    const rawId = searchParams.get("ride");
 
-  const handleCancelRide = () => {
-    setRideData(prev => ({ ...prev, status: 'cancelled' }));
+    const localId = localStorage.getItem("rideId");
 
+    let id = rawId || localId;
+
+    if (id) {
+      id = decodeURIComponent(id).replace(/"/g, "");
+      setRideId(id);
+      localStorage.setItem("rideId", id); 
+    }
+  }, [searchParams]);
+
+
+
+
+  const { data ,isLoading} = useGetSingleRideQuery(rideId,{
+    skip: !rideId,
+    pollingInterval: 20000,
+  });
+ 
+
+
+
+
+
+const [changeRideStatus] = useChangeRideStatusMutation();
+
+const [cancelRide] = useCancelRideMutation();
+const navigate = useNavigate();
+
+
+const rideData = data?.data;
+
+  const handleCancelRide = async() => {
+    if (!rideId) {
+      toast.error("No ride ID found to cancel.");
+      return;
+    }
+    try {
+      await cancelRide({ rideId }).unwrap();
+      toast.success("Ride cancelled successfully");
+      localStorage.removeItem("rideId");
+      navigate(`/rider/rides`);
+    } catch (err) {
+      const error = err as ApiError;
+      toast.error(`Failed to cancel ride: ${error.message}`);
+    }
+  };
+
+
+  const onChangeStatus = (
+    status: "requested" | "accepted" | "picked_up" | "in_transit" | "completed" | "cancelled_by_rider" | "cancelled_by_driver"
+  ) => {
+    if(!rideId) return toast.error("No ride ID found");
+    changeRideStatus({ rideId, status }).unwrap();
   };
 
   const handleSOS = () => {
@@ -68,7 +101,7 @@ const InRide = () => {
     );
   }
 
-  if (rideData.status === 'cancelled') {
+  if (rideData?.status === 'cancelled') {
     return (
       <motion.div 
         initial={{ opacity: 0 }}
@@ -103,20 +136,28 @@ const InRide = () => {
     transition={{ duration: 0.6, delay: 0.1 }}
     className=" w-full rounded-lg overflow-hidden md:h-full h-96"
   >
-    <MapView
-      pickupLocation={rideData.pickupLocation}
-      destinationLocation={rideData.destinationLocation}
-      className="h-full w-full"
-    />
+    <Suspense fallback={  <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+        />}>
+      <MapView
+        pickupLocation={rideData?.pickupLocation}
+        destinationLocation={rideData?.destinationLocation}
+        className="h-full w-full"
+      />
+    </Suspense >
   </motion.div>
 
   {/* Right Column: Ride Details */}
   <div className="flex items-center justify-center w-full h-full md:mt-20 mt-4">
     <RideDetailsCard
-      pickupLocation={rideData.pickupLocation}
-      destinationLocation={rideData.destinationLocation}
-      estimatedFare={rideData.estimatedFare}
-      passengers={rideData.passengers}
+      pickupLocation={rideData?.pickupLocation}
+      destinationLocation={rideData?.destinationLocation}
+      estimatedFare={rideData?.fare}
+      passengers={rideData?.passengers}
+      status={rideData?.status}
+      onChangeStatus={onChangeStatus}
       onCancelRide={handleCancelRide}
     />
   </div>

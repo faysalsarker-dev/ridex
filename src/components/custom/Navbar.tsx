@@ -141,7 +141,7 @@ const Navbar = () => {
         variant="outline"
         size="sm"
       >
-        Register
+       <Link to={'/register'}> Register</Link>
       </Button>
     </>
   )}

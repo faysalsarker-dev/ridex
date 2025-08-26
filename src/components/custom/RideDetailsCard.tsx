@@ -3,6 +3,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { MapPin, Navigation, Users, CreditCard } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Badge } from '../ui/badge';
+import { useEffect, useState } from 'react';
+import { useUserInfoQuery } from '@/redux/features/auth/auth.api';
 
 interface Location {
   lat: number;
@@ -15,7 +29,9 @@ interface RideDetailsCardProps {
   destinationLocation: Location;
   estimatedFare: string;
   passengers: number;
+  status: string;
   onCancelRide: () => void;
+  onChangeStatus: (status: string) => void;
 }
 
 export function RideDetailsCard({ 
@@ -23,8 +39,57 @@ export function RideDetailsCard({
   destinationLocation, 
   estimatedFare, 
   passengers,
-  onCancelRide 
+  status,
+  onCancelRide,
+  onChangeStatus
 }: RideDetailsCardProps) {
+const {data}=useUserInfoQuery(undefined)
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "requested":
+        return <Badge className="bg-blue-100 text-blue-800 my-2">Requested</Badge>;
+      case "accepted":
+        return <Badge className="bg-indigo-100 text-indigo-800 my-2">Accepted</Badge>;
+      case "picked_up":
+        return <Badge className="bg-purple-100 text-purple-800 my-2">Picked Up</Badge>;
+      case "in_transit":
+        return <Badge className="bg-yellow-100 text-yellow-800 my-2">In Transit</Badge>;
+      case "completed":
+        return <Badge className="bg-green-100 text-green-800 my-2">Completed</Badge>;
+      case "cancelled_by_rider":
+      case "cancelled_by_driver":
+        return <Badge className="bg-red-100 text-red-800 my-2">Cancelled</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+
+useEffect(() => {
+if(status==="completed"){
+        localStorage.removeItem("rideId");
+
+}
+
+}, [status]);
+
+  const nextStatus = () => {
+    switch (status) {
+      case "accepted":
+        return "picked_up";
+      case "picked_up":
+        return "in_transit";
+      case "in_transit":
+        return "completed";
+      default:
+        return null;
+    }
+  };
+
+  const actionableStatus = nextStatus();
+
   return (
     <motion.div
       initial={{ y: 100, opacity: 0 }}
@@ -34,7 +99,8 @@ export function RideDetailsCard({
     >
       <Card className="mx-4 mb-4 glass-morphism shadow-elevated border-0">
         <CardContent className="p-6">
-          {/* Header */}
+          {getStatusBadge(status)}
+
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Current Ride</h2>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -56,7 +122,7 @@ export function RideDetailsCard({
                   <span className="text-sm font-medium text-foreground">Pickup</span>
                 </div>
                 <p className="text-sm text-muted-foreground truncate">
-                  {pickupLocation.address}
+                  {pickupLocation?.address}
                 </p>
               </div>
             </div>
@@ -79,7 +145,7 @@ export function RideDetailsCard({
                   <span className="text-sm font-medium text-foreground">Destination</span>
                 </div>
                 <p className="text-sm text-muted-foreground truncate">
-                  {destinationLocation.address}
+                  {destinationLocation?.address}
                 </p>
               </div>
             </div>
@@ -96,15 +162,79 @@ export function RideDetailsCard({
             <span className="text-xl font-bold text-primary">{estimatedFare}</span>
           </div>
 
-          {/* Cancel Button */}
-          <Button 
-            variant="outline" 
-            size="lg"
-            onClick={onCancelRide}
-            className="w-full text-white border-0 bg-red-500 hover:bg-red-300 transition-all duration-200"
-          >
-            Cancel Ride
-          </Button>
+{
+  status !== "completed" && (
+
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="w-full text-white border-0 bg-red-500 hover:bg-red-300 transition-all duration-200"
+              >
+                Cancel Ride
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently cancel your ride request.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter >
+                <AlertDialogCancel className="bg-white hover:bg-gray-300">No, Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  className="bg-red-500 text-white hover:bg-red-300"             
+                  onClick={onCancelRide}
+                >
+                  Yes, Confirm
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+  )
+}
+
+
+          {/* Status Change Button */}
+          {actionableStatus && data.data.role === 'driver' && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full mt-4 text-white border-0 bg-primary hover:bg-primary/80 transition-all duration-200"
+                  onClick={() => setSelectedStatus(actionableStatus)}
+                >
+                  {actionableStatus.replace("_", " ").toUpperCase()}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to change the ride status to "{actionableStatus.replace("_", " ")}"?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="bg-white hover:bg-gray-300">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-primary text-white hover:bg-primary/80"
+                    onClick={() => {
+                      if (selectedStatus) {
+                        onChangeStatus(selectedStatus);
+                        setSelectedStatus(null);
+                      }
+                    }}
+                  >
+                    Confirm
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </CardContent>
       </Card>
     </motion.div>

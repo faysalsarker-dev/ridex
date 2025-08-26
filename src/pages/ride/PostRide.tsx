@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useCreateRideRequestMutation } from "@/redux/features/ride/ride.api";
 import { calculateDistance } from "@/utils/calculateDistance";
+import { useNavigate } from "react-router";
 
 interface LocationData {
   lat: number;
@@ -58,7 +59,7 @@ export default function PostRide() {
   const [minFare, setMinFare] = useState<number | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [eta, setEta] = useState<number | null>(null);
-
+const navigate = useNavigate()
   const [createRideRequest, { isLoading }] = useCreateRideRequestMutation();
 
   const { register, handleSubmit, setValue, watch } = useForm({
@@ -194,9 +195,10 @@ export default function PostRide() {
     };
 
     try {
-      const res = await createRideRequest(payload).unwrap();
-      toast.success("Ride request submitted!");
-      console.log("✅ Backend response:", res);
+      const res =  await createRideRequest(payload).unwrap();
+      localStorage.setItem("rideId", JSON.stringify(res?.data?._id));
+      navigate(`/rider/on-ride?ride=${res?.data?._id}`);
+
     } catch (err) {
          type ApiError = { data?: { message?: string }; message?: string };
       const error = err as ApiError;
@@ -232,6 +234,7 @@ export default function PostRide() {
                   value={pickupInput}
                   onChange={(e) => setPickupInput(e.target.value)}
                   className="h-12 rounded-xl border-border/50"
+                  placeholder="Detecting current location..."
                   required
                 />
               </div>
@@ -247,6 +250,7 @@ export default function PostRide() {
                   value={destinationInput}
                   onChange={handleDestinationChange}
                   className="h-12 rounded-xl border-border/50"
+                  placeholder="Enter destination"
                   required
                 />
                 {destinationSuggestions.length > 0 && (

@@ -51,7 +51,7 @@ const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: stri
       className="bg-white dark:bg-card rounded-2xl shadow-lg p-4 sm:p-6 flex flex-col gap-4 border border-border"
     >
       {/* Header: Pickup → Destination + Status */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div className="flex flex-col  gap-2">
         <div className="flex items-center gap-2 text-base sm:text-lg font-semibold text-foreground">
           <MapPin className="h-5 w-5 text-primary shrink-0" />
           <span className="truncate">
@@ -86,7 +86,7 @@ const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: stri
 
       {
         ride.status === "completed" && (
-<p>placeholder</p>
+          <p>placeholder</p>
       //      <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2 border-t border-border">
       //   <div className="flex items-center gap-2 text-sm">
       //     <span className="font-medium text-foreground">Your Rating:</span>

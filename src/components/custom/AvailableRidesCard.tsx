@@ -12,7 +12,17 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import type { Ride } from "../interfaces";
 import { Skeleton } from '@/components/ui/skeleton';
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 
 interface AvailableRidesCardProps {
@@ -125,13 +135,38 @@ export const AvailableRidesCard = ({
             </div>
           )}
 
-          {/* Accept button */}
-          <Button
-            onClick={() => handleAcceptRide(ride._id)}
+
+<AlertDialog>
+  <AlertDialogTrigger asChild>
+
+
+      <Button
             className="w-full h-12 gradient-primary text-white rounded-xl shadow-soft hover:shadow-elevated transition-all duration-300"
           >
             Accept Ride
           </Button>
+
+  </AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+      <AlertDialogDescription>
+        You will allow to accept this ride.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction             onClick={() => handleAcceptRide(ride._id)}
+>Continue</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+
+
+
+
+          {/* Accept button */}
+    
         </CardContent>
       </Card>
     </motion.div>

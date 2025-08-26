@@ -63,6 +63,13 @@ export const rideApi = baseApi.injectEndpoints({
       }),
       providesTags: ["RIDE"],
     }),
+    getSingleRide: builder.query({
+      query: (rideId) => ({
+        url: `/rides/${rideId}`,
+        method: "GET",
+      }),
+      providesTags: ["RIDE"],
+    }),
   }),
 });
 
@@ -73,4 +80,6 @@ export const {
   useGetAvailableRidesQuery,
   useAcceptRideMutation,
   useDriverHistoryQuery,
+  useGetSingleRideQuery,
+  useChangeRideStatusMutation
 } = rideApi;
