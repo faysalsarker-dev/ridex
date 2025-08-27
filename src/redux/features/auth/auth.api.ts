@@ -47,6 +47,13 @@ export const authApi = baseApi.injectEndpoints({
       }),
       providesTags: ["USER"],
     }),
+    driverOnline: builder.mutation({
+      query: () => ({
+        url: "/user/driver-online",
+        method: "PUT",
+      }),
+      invalidatesTags: ["USER"],
+    }),
   }),
 });
 
@@ -56,5 +63,6 @@ export const {
   useUserInfoQuery,
   useLogoutMutation,
   useUpdateMutation,
-  useChangePasswordMutation
+  useChangePasswordMutation,
+  useDriverOnlineMutation
 } = authApi;

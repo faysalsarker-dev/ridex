@@ -25,12 +25,7 @@ const ActiveRide = () => {
 
   const handleStatusUpdate = (newStatus: RideStatus) => {
     setStatus(newStatus);
-    const statusMessages = {
-      accepted: "Ride accepted! Contact the rider to arrange pickup.",
-      enroute: "You're on your way! Safe travels.",
-      completed: "Ride completed successfully! Payment has been processed.",
-      cancelled: "Ride has been cancelled."
-    };
+
     
 
   };

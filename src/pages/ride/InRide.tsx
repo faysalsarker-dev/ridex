@@ -9,13 +9,10 @@ import { useCancelRideMutation, useChangeRideStatusMutation, useGetSingleRideQue
 import { useNavigate, useSearchParams } from 'react-router';
 import type { ApiError } from '@/components/interfaces';
 import toast from 'react-hot-toast';
+import NoRidePage from './NoRidePage';
 
 
-interface Location {
-  lat: number;
-  lng: number;
-  address: string;
-}
+
 
 
 
@@ -36,6 +33,11 @@ const InRide = () => {
       setRideId(id);
       localStorage.setItem("rideId", id); 
     }
+
+
+
+
+
   }, [searchParams]);
 
 
@@ -56,6 +58,11 @@ const [changeRideStatus] = useChangeRideStatusMutation();
 const [cancelRide] = useCancelRideMutation();
 const navigate = useNavigate();
 
+
+
+if (!rideId) {
+     return <NoRidePage />;
+    }
 
 const rideData = data?.data;
 
@@ -83,11 +90,7 @@ const rideData = data?.data;
     changeRideStatus({ rideId, status }).unwrap();
   };
 
-  const handleSOS = () => {
 
-    // SOS logic would go here
-    console.log("SOS activated!");
-  };
 
   if (isLoading) {
     return (
@@ -123,7 +126,7 @@ const rideData = data?.data;
       transition={{ duration: 0.5 }}
       className="min-h-screen relative bg-background overflow-x-hidden"
     >
-   <SOSButton onSOS={handleSOS} />
+      <SOSButton  />
 
 
 

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Clock, DollarSign, MapPin, Star, Users, X } from "lucide-react";
+import { Clock, DollarSign, MapPin,  Users, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import type { Ride } from './../interfaces/index';
@@ -84,7 +84,7 @@ const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: stri
       {/* Ratings */}
 
 
-      {
+      {/* {
         ride.status === "completed" && (
           <p>placeholder</p>
       //      <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2 border-t border-border">
@@ -114,7 +114,7 @@ const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: stri
       //   </div>
       // </div>
         )
-      }
+      } */}
 
 
       {
@@ -136,7 +136,12 @@ const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: stri
     </AlertDialogHeader>
     <AlertDialogFooter >
       <AlertDialogCancel className="bg-white hover:bg-gray-300">No, Cancel</AlertDialogCancel>
-      <AlertDialogAction className="bg-red-500 text-white hover:bg-red-300" onClick={() => onCancel(ride._id)}>Yes, Confirm</AlertDialogAction>
+      <AlertDialogAction
+        className="bg-red-500 text-white hover:bg-red-300"
+        onClick={() => { if (onCancel) onCancel(ride?._id); }}
+      >
+        Yes, Confirm
+      </AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>
 </AlertDialog>

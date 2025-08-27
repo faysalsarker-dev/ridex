@@ -95,7 +95,7 @@ const {data ,isLoading }=useRideHistoryQuery(undefined)
 
       {/* Ride History List */}
       <AnimatedList className="space-y-4">
-        {data?.data?.map((ride) => (
+        {data?.data?.map((ride: Ride) => (
           <RideHistoryCard key={ride._id} ride={ride} />
         ))}
       </AnimatedList>

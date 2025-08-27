@@ -1,16 +1,15 @@
-import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
+import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
-import type { ComponentType } from "react";
-import { useEffect } from "react";
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
+import Loader from "@/components/custom/Loader";
 
 type TRole = "driver" | "rider" | "admin";
 
-// HOC with generic typing
-export function withAuth<P extends object>(
-  WrappedComponent: ComponentType<P>,
+const withAuth = <P extends object>(
+  WrappedComponent: React.ComponentType<P>,
   requiredRole?: TRole
-) {
-  return function AuthWrapper(props: P) {
+) => {
+  const AuthWrapper: React.FC<P> = (props) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { data, isLoading } = useUserInfoQuery(undefined);
@@ -18,37 +17,44 @@ export function withAuth<P extends object>(
     const user = data?.data;
 
     useEffect(() => {
-      if (!isLoading) {
-        if (!user?.email) {
-          navigate("/login", { replace: true, state: { from: location } });
-          return;
-        }
+      if (isLoading) return;
 
-        if (user?.isBlocked) {
-          navigate("/blocked", { replace: true });
-          return;
-        }
-
-        if (requiredRole && requiredRole !== user?.role) {
-          navigate("/", { replace: true });
-          return;
-        }
-
-        const onRide = localStorage.getItem("onRide");
-        if (onRide && location.pathname !== "/rider/on-ride") {
-          navigate("/rider/on-ride", { replace: true });
-        }
+      if (!user?.email) {
+        navigate("/login", { replace: true, state: { from: location.pathname } });
+        return;
       }
-    }, [isLoading, user, requiredRole, navigate, location]);
 
-    if (isLoading) {
-      return <div className="flex items-center justify-center h-screen">Loading...</div>;
+      if (user.isBlocked) {
+        navigate("/blocked", { replace: true });
+        return;
+      }
+
+      if (requiredRole && user.role !== requiredRole) {
+        navigate("/", { replace: true });
+        return;
+      }
+
+      const isOnRide = localStorage.getItem("rideId");
+      if (isOnRide && location.pathname !== "/rider/on-ride") {
+        navigate("/rider/on-ride", { replace: true });
+      }
+    }, [isLoading, user, navigate, location]);
+
+    if (isLoading) return React.createElement(Loader);
+
+    if (!user?.email || user.isBlocked || (requiredRole && user.role !== requiredRole)) {
+      return null;
     }
 
-    if (!user?.email) {
-      return null; // avoids flicker while redirecting
-    }
-
-    return <WrappedComponent {...props} />;
+    return React.createElement(WrappedComponent, props);
   };
+
+  AuthWrapper.displayName = `withAuth(${getComponentName(WrappedComponent)})`;
+  return AuthWrapper;
+};
+
+export default withAuth;
+
+function getComponentName(WrappedComponent: React.ComponentType<any>): string {
+  return WrappedComponent.displayName || WrappedComponent.name || "Component";
 }

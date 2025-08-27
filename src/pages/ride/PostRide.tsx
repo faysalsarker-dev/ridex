@@ -26,6 +26,7 @@ import {
 import { useCreateRideRequestMutation } from "@/redux/features/ride/ride.api";
 import { calculateDistance } from "@/utils/calculateDistance";
 import { useNavigate } from "react-router";
+import { Badge } from "@/components/ui/badge";
 
 interface LocationData {
   lat: number;
@@ -322,6 +323,10 @@ const navigate = useNavigate()
                   </SelectContent>
                 </Select>
               </div>
+<Badge className=" bg-blue-300 text-blue-600 my-2">
+  Cash On Payment
+</Badge>
+
 
               {/* Notes */}
               <div>

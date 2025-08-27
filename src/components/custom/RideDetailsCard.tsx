@@ -31,8 +31,11 @@ interface RideDetailsCardProps {
   passengers: number;
   status: string;
   onCancelRide: () => void;
-  onChangeStatus: (status: string) => void;
+  onChangeStatus: (
+    status: "requested" | "accepted" | "picked_up" | "in_transit" | "completed" | "cancelled_by_rider" | "cancelled_by_driver"
+  ) => void;
 }
+
 
 export function RideDetailsCard({ 
   pickupLocation, 
@@ -44,7 +47,16 @@ export function RideDetailsCard({
   onChangeStatus
 }: RideDetailsCardProps) {
 const {data}=useUserInfoQuery(undefined)
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<
+    | "requested"
+    | "accepted"
+    | "picked_up"
+    | "in_transit"
+    | "completed"
+    | "cancelled_by_rider"
+    | "cancelled_by_driver"
+    | null
+  >(null);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

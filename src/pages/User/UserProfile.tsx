@@ -13,16 +13,30 @@ import { Badge } from "@/components/ui/badge";
 import {  Star, Shield, LogOut } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import {  useUserInfoQuery } from "@/redux/features/auth/auth.api";
+import {  authApi, useDriverOnlineMutation, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api";
 
 import { ChangePassword, DriverInfo, UserInfo } from "./UserDialog";
-
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label";
+import { useAppDispatch } from "@/redux/hooks";
 
 
 const Profile = () => {
   const { data, isLoading } = useUserInfoQuery(undefined);
   const user = data?.data;
-console.log(user, user?.role === "driver");
+  const [driverOnline] = useDriverOnlineMutation();
+   const [logout] = useLogoutMutation();
+  const dispatch = useAppDispatch();
+
+
+   const handleLogout = async () => {
+       await logout(undefined).unwrap();
+    dispatch(authApi.util.resetApiState());
+   }
+
+const handleToggle = () => {
+  driverOnline({ isOnline: !user?.driverProfile?.isOnline }).unwrap();
+}
 
   if (isLoading) {
     return (
@@ -106,8 +120,23 @@ console.log(user, user?.role === "driver");
                       Unverified
                     </Badge>
                   ))}
+
               </div>
             </CardHeader>
+
+            {
+              user?.role === "driver" && (
+                <div className="flex justify-center items-center space-x-2 w-full ">
+                  <Switch
+                    checked={user?.driverProfile?.isOnline}
+                    onCheckedChange={handleToggle}
+                    id="Active-status"
+                  />
+                  <Label htmlFor="Active-status">Youre {user?.driverProfile?.isOnline ? "Online" : "Offline"}</Label>
+                </div>
+              )
+            }
+                     
 
             <CardContent className="divide-y divide-border/40">
               <div className="flex justify-between py-3 text-sm">
@@ -150,7 +179,8 @@ console.log(user, user?.role === "driver");
           {/* Change Password */}
           <ChangePassword />
           {/* Logout (mobile only) */}
-          <div className="flex items-center gap-2 w-full bg-card shadow-sm p-3 rounded-xl md:hidden">
+          <div           onClick={handleLogout}
+ className="flex items-center gap-2 w-full bg-card shadow-sm p-3 rounded-xl md:hidden">
             <LogOut className="h-5 w-5 text-red-500" />
             <span className="font-medium text-sm md:text-base text-red-500">
               Logout

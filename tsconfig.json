@@ -6,6 +6,11 @@
   ]
   ,
     "compilerOptions": {
+       "verbatimModuleSyntax": false, 
+           "jsx": "react-jsx",
+    "strict": true,
+
+    "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
