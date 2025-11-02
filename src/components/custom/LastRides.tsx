@@ -2,7 +2,7 @@
 
 import { useCancelRideMutation, useRideHistoryQuery } from "@/redux/features/ride/ride.api";
 import { AnimatedList } from "../magicui/animated-list";
-import RideHistoryCard from "./RideHistoryCard";
+import RideHistoryCard from "../modules/rides/RideHistoryCard";
 import RideHistoryCardSkeleton from "./RideHistoryCardSkeleton";
 import type { Ride } from "../interfaces";
 import toast from "react-hot-toast";

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Clock, DollarSign, MapPin,  Users, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import type { Ride } from './../interfaces/index';
+import type { Ride } from '../../interfaces/index';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,7 +72,7 @@ const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: stri
         <div className="flex items-center gap-1">
           <DollarSign className={`h-4 w-4 ${(ride.status === 'cancelled_by_rider' || ride.status === 'cancelled_by_driver') ? 'text-red-500' : 'text-green-500'}`} />
           <span className="font-medium text-foreground">
-            ${ride.fare.toFixed(2)}
+            {ride.fare.toFixed(2)} 
           </span>
         </div>
         <div className="flex items-center gap-1">

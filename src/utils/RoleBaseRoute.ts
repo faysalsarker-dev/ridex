@@ -22,7 +22,7 @@ export const DriverRoutes: Iroutes[] = [
     name: "Ride History",
   },
     {
-    Component: withAuth(InRide,"driver"),
+    Component: withAuth(InRide),
     path: "/rider/on-ride",
     icon: Route,
     name: "Ongoing Ride",
@@ -43,7 +43,7 @@ export const RiderRoutes: Iroutes[] = [
     name: "Ride History",
   },
   {
-    Component: withAuth(InRide,"rider"),
+    Component: withAuth(InRide),
     path: "/rider/on-ride",
     icon: Route,
     name: "Ongoing Ride",

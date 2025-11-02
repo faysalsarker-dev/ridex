@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
-import Loader from "@/components/custom/Loader";
+import Loader from "@/components/shared/Loader";
 
 type TRole = "driver" | "rider" | "admin";
 

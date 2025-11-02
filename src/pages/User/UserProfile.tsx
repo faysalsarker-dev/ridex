@@ -1,52 +1,89 @@
 
-import { motion } from "framer-motion";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {  Star, Shield, LogOut } from "lucide-react";
-
+import {  motion } from "framer-motion";
+import { LogOut } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import {  authApi, useDriverOnlineMutation, useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api";
 
-import { ChangePassword, DriverInfo, UserInfo } from "./UserDialog";
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label";
-import { useAppDispatch } from "@/redux/hooks";
-
-
-const Profile = () => {
-  const { data, isLoading } = useUserInfoQuery(undefined);
-  const user = data?.data;
-  const [driverOnline] = useDriverOnlineMutation();
-   const [logout] = useLogoutMutation();
-  const dispatch = useAppDispatch();
+import { ProfileOverviewCard } from "@/components/modules/user/ProfileOverviewCard";
+import { ActionButton } from "@/components/modules/user/ActionButton";
+import { UserInfoDialog } from "@/components/modules/user/dialogs/UserInfoDialog";
+import toast from "react-hot-toast";
+import type { PasswordFormData, UserFormData } from "@/types/user.types";
+import type { DriverFormData, IUser } from "@/components/interfaces";
+import { DriverInfoDialog } from "@/components/modules/user/dialogs/DriverInfoDialog";
+import { ChangePasswordDialog } from "@/components/modules/user/dialogs/ChangePasswordDialog";
+import { useChangePasswordMutation, useDriverOnlineMutation, useUpdateMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api";
 
 
-   const handleLogout = async () => {
-       await logout(undefined).unwrap();
-    dispatch(authApi.util.resetApiState());
+
+const ProfilePage = () => {
+
+  const {data ,isLoading,refetch} = useUserInfoQuery(undefined);
+  const [updateUserInfo, { isLoading: isUpdatingUserInfo }] = useUpdateMutation();
+const [passwordChange ,{ isLoading: isPasswordLoading }]=useChangePasswordMutation()
+const [driverToggle]=useDriverOnlineMutation()
+  const user = data?.data as IUser | undefined;
+
+  const handleUpdateUserInfo = async (data: UserFormData) => {
+await updateUserInfo(data).unwrap();
+    toast.success("Profile updated successfully!");
+
+  };
+
+  const handleUpdateDriverInfo = async (data: DriverFormData) => {
+const driverInfo = { 
+  ...user,
+   driverProfile:{
+  ...user?.driverProfile,
+     vehicleInfo: {
+      model: data.vehicleModel,
+      licensePlate: data.licensePlate,
+      color: data.vehicleColor,
+    }
    }
 
-const handleToggle = () => {
-  driverOnline({ isOnline: !user?.driverProfile?.isOnline }).unwrap();
+  };
+
+      await updateUserInfo(driverInfo).unwrap()
+ toast.success("Driver information updated successfully!");
+ refetch()
+  };
+
+  const handleChangePassword = async (data: PasswordFormData) => {
+if(data.newPassword !== data.confirmPassword) return toast.error('New password and confirm password not match')
+console.log(data);
+const info = {
+  oldPassword : data.currentPassword,
+  newPassword: data.newPassword
 }
+await passwordChange(info).unwrap() // need to test 
+ toast.success("Password changed successfully!");
+ refetch()
+  };
+
+  const handleToggleOnline = async () => {
+
+await driverToggle(undefined).unwrap();
+    toast.success("Online status updated!");
+    refetch()
+  };
+
+  const handleLogout = () => {
+    // Implement logout logic
+    console.log("Logging out");
+  toast.success("Logged out successfully!");
+  };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Skeleton className="h-10 w-40 mb-6" />
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <Skeleton className="h-16 w-64 mx-auto mb-8" />
         <div className="grid lg:grid-cols-3 gap-8">
-          <Skeleton className="h-64 rounded-2xl" />
-          <div className="lg:col-span-2 space-y-6">
-            <Skeleton className="h-56 rounded-2xl" />
-            <Skeleton className="h-56 rounded-2xl" />
+          <Skeleton className="h-96 rounded-2xl" />
+          <div className="lg:col-span-2 space-y-4">
+            <Skeleton className="h-20 rounded-xl" />
+            <Skeleton className="h-20 rounded-xl" />
+            <Skeleton className="h-20 rounded-xl" />
           </div>
         </div>
       </div>
@@ -54,142 +91,78 @@ const handleToggle = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="text-center mb-8"
-      >
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">Profile Settings</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Manage your account information and preferences
-        </p>
-      </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container mx-auto px-4 py-12 max-w-6xl">
+       
 
-      <div className="space-y-8">
-        {/* Profile Overview */}
-        <motion.div
-          initial={{ opacity: 0, x: -15 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          <Card className="rounded-2xl border-border/50 shadow-sm">
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4">
-                <Avatar className="w-24 h-24">
-                  <AvatarFallback className="text-2xl font-semibold bg-gradient-to-r from-primary to-blue-500 text-white">
-                    {user?.name
-                      ?.split(" ")
-                      .map((n: string) => n[0])
-                      .join("")
-                      .toUpperCase() || "?"}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <CardTitle className="text-lg md:text-xl">{user?.name}</CardTitle>
-              <CardDescription className="text-sm md:text-base">
-                {user?.email}
-              </CardDescription>
+   <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="text-center mb-8"
+    >
+      <h1 className="text-4xl md:text-5xl font-bold mb-3">
+        Profile Settings
+      </h1>
+      <p className="text-muted-foreground text-lg">
+        Manage your account information and preferences
+      </p>
+    </motion.div>
 
-              {/* Badges */}
-              <div className="flex justify-center flex-wrap gap-2 mt-3">
-                {user?.role === "driver" ? (
-                  <Badge className="bg-gradient-to-r from-primary to-blue-500 text-white">
-                    Driver
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary">Rider</Badge>
-                )}
-                {user?.role === "driver" &&
-                  (user?.driverProfile?.isApproved ? (
-                    <Badge
-                      variant="outline"
-                      className="gap-1 bg-green-100 text-green-600 border-green-200"
-                    >
-                      <Shield className="h-3 w-3" />
-                      Verified
-                    </Badge>
-                  ) : (
-                    <Badge
-                      variant="outline"
-                      className="gap-1 bg-red-100 text-red-500 border-red-200"
-                    >
-                      <Shield className="h-3 w-3" />
-                      Unverified
-                    </Badge>
-                  ))}
 
-              </div>
-            </CardHeader>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Profile Overview */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <ProfileOverviewCard
+              user={user} 
+              onToggleOnline={handleToggleOnline}
+            />
+          </motion.div>
 
-            {
-              user?.role === "driver" && (
-                <div className="flex justify-center items-center space-x-2 w-full ">
-                  <Switch
-                    checked={user?.driverProfile?.isOnline}
-                    onCheckedChange={handleToggle}
-                    id="Active-status"
-                  />
-                  <Label htmlFor="Active-status">Youre {user?.driverProfile?.isOnline ? "Online" : "Offline"}</Label>
-                </div>
-              )
-            }
-                     
+          {/* Right Column - Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="lg:col-span-2 space-y-4"
+          >
+            <UserInfoDialog
+              user={user}
+              onSubmit={handleUpdateUserInfo}
+              isLoading={isUpdatingUserInfo}
+            />
 
-            <CardContent className="divide-y divide-border/40">
-              <div className="flex justify-between py-3 text-sm">
-                <span className="text-muted-foreground">Member since</span>
-                <span className="font-medium">
-                  {new Date(user?.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex justify-between py-3 text-sm">
-                <span className="text-muted-foreground">Rating</span>
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{user?.rating || "N/A"}</span>
-                </div>
-              </div>
-              {user?.role === "driver" && (
-                <div className="flex justify-between py-3 text-sm">
-                  <span className="text-muted-foreground">Total Rides</span>
-                  <span className="font-medium">{user?.totalRides || 0}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+            {user?.role === "driver" && (
+              <DriverInfoDialog
+                user={user}
+                onSubmit={handleUpdateDriverInfo}
+                isLoading={isUpdatingUserInfo}
+              />
+            )}
 
-        {/* Action Cards */}
-        <motion.div
-          initial={{ opacity: 0, x: 15 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="space-y-4"
-        >
-          {/* Personal Info */}
-          <UserInfo user={user} />
-          {/* Driver Info */}
-          {user?.role === "driver" && (
-         <DriverInfo user={user} />
-          )}
+            <ChangePasswordDialog
+              onSubmit={handleChangePassword}
+              isLoading={isPasswordLoading}
+            />
 
-          {/* Change Password */}
-          <ChangePassword />
-          {/* Logout (mobile only) */}
-          <div           onClick={handleLogout}
- className="flex items-center gap-2 w-full bg-card shadow-sm p-3 rounded-xl md:hidden">
-            <LogOut className="h-5 w-5 text-red-500" />
-            <span className="font-medium text-sm md:text-base text-red-500">
-              Logout
-            </span>
-          </div>
-        </motion.div>
+            {/* Logout Button - Mobile Only */}
+            <div className="lg:hidden">
+              <ActionButton
+                icon={LogOut}
+                label="Logout"
+                onClick={handleLogout}
+                variant="danger"
+              />
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Profile;
+export default ProfilePage;

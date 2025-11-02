@@ -12,6 +12,7 @@ export interface Service {
   title: string;
   description: string;
   icon: React.ReactNode;
+  color: string;
 }
 
 
@@ -86,6 +87,7 @@ export interface IUser {
     };
   }
   updatedAt: string;
+  createdAt: string;
 
 }
 

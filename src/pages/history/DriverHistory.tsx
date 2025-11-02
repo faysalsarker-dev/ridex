@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin,  DollarSign, TrendingUp } from "lucide-react";
 import { useDriverHistoryQuery } from "@/redux/features/ride/ride.api";
-import RideHistoryCard from "@/components/custom/RideHistoryCard";
+import RideHistoryCard from "@/components/modules/rides/RideHistoryCard";
 import type {  Ride } from "@/components/interfaces";
 
 const DriverHistory = () => {

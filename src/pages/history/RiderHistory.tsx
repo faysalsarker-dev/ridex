@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, DollarSign, Star } from "lucide-react";
-import RideHistoryCard from "@/components/custom/RideHistoryCard";
+import RideHistoryCard from "@/components/modules/rides/RideHistoryCard";
 import { AnimatedList } from "@/components/magicui/animated-list";
 import { useRideHistoryQuery } from "@/redux/features/ride/ride.api";
 import RideHistoryCardSkeleton from "@/components/custom/RideHistoryCardSkeleton";

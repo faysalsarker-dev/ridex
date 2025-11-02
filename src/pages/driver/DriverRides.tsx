@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 
 import { useAcceptRideMutation, useGetAvailableRidesQuery } from "@/redux/features/ride/ride.api";
-import {AvailableRidesCard, AvailableRidesCardSkeleton} from "@/components/custom/AvailableRidesCard";
 import type { ApiError, Ride } from "@/components/interfaces";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
+import { AvailableRidesCard, AvailableRidesCardSkeleton } from "@/components/modules/rides/AvailableRidesCard";
 
 const DriverRides = () => {
 const { data: availableRides ,isLoading } = useGetAvailableRidesQuery(undefined,{
