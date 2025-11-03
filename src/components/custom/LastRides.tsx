@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 
 import { useCancelRideMutation, useRideHistoryQuery } from "@/redux/features/ride/ride.api";
@@ -6,10 +7,12 @@ import RideHistoryCard from "../modules/rides/RideHistoryCard";
 import RideHistoryCardSkeleton from "./RideHistoryCardSkeleton";
 import type { Ride } from "../interfaces";
 import toast from "react-hot-toast";
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 
 
 const LastRides = () => {
 const {data ,isLoading }=useRideHistoryQuery(undefined)
+const {data:user,isLoading:UserLoading }=useUserInfoQuery(undefined)
 const [cancelRide] = useCancelRideMutation();
 
 const onCancel = async (rideId: string) => {
@@ -38,7 +41,7 @@ const onCancel = async (rideId: string) => {
       )}
       <AnimatedList className="space-y-4">
         {data?.data?.slice(0, 5).map((ride:Ride) => (
-          <RideHistoryCard key={ride._id} ride={ride} onCancel={onCancel}/>
+          <RideHistoryCard key={ride._id} ride={ride} onCancel={onCancel} user={user.data} isloading={UserLoading}/>
         ))}
       </AnimatedList>
     </div>

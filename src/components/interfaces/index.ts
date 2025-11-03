@@ -16,6 +16,25 @@ export interface Service {
 }
 
 
+
+export interface IHistory {
+  _id?: string;
+  rideId: string;
+  riderId: string;
+  driverId: string;
+
+  riderRating?: number;
+  riderFeedback?: string;
+  driverRating?: number;
+  driverFeedback?: string;
+
+  status?: 'COMPLETED' | 'CANCELLED' | 'REJECTED';
+  completedAt?: Date;
+}
+
+
+
+
 export interface Ride {
   _id: string;
   createdAt: string;
@@ -60,6 +79,7 @@ export interface Ride {
     inTransitAt?: string;
     completedAt?: string;
   };
+  history:IHistory;
 }
 
 export interface FormData {

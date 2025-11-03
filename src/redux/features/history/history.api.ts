@@ -10,11 +10,28 @@ export const historyApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["HISTORY"],
     }),
-
+   updateHistoryRider: builder.mutation({
+      query: ({id,payload}) => ({
+        url: `/history/rider-feedback/${id}`,
+        method: "PATCH",
+        data: payload,
+      }),
+      invalidatesTags: ["HISTORY"],
+    }),
+   updateHistoryDriver: builder.mutation({
+      query: ({id,ratting}) => ({
+        url: `/history/driver-feedback/${id}`,
+        method: "PATCH",
+        data: ratting,
+      }),
+      invalidatesTags: ["HISTORY"],
+    }),
 
   }),
 });
 
 export const {
-  useRiderFeedbackMutation
+  useRiderFeedbackMutation,
+  useUpdateHistoryRiderMutation,
+  useUpdateHistoryDriverMutation
 } = historyApi;

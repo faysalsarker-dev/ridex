@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, DollarSign, MapPin, Users, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import type { Ride } from "../interfaces";
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
@@ -23,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import type { Ride } from "@/components/interfaces";
 
 
 interface AvailableRidesCardProps {
@@ -141,7 +141,7 @@ export const AvailableRidesCard = ({
 
 
       <Button
-            className="w-full h-12 gradient-primary text-white rounded-xl shadow-soft hover:shadow-elevated transition-all duration-300"
+            className="w-full h-12  text-white rounded-xl shadow-soft hover:shadow-elevated transition-all duration-300"
           >
             Accept Ride
           </Button>

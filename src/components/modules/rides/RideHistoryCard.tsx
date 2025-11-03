@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Clock, DollarSign, MapPin,  Users, X } from "lucide-react";
+import { Clock, DollarSign, MapPin, Star, Users, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import type { Ride } from '../../interfaces/index';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,34 +13,84 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import type { IUser, Ride } from "@/components/interfaces";
+import Loader from "@/components/shared/Loader";
+import {
+  useUpdateHistoryDriverMutation,
+  useUpdateHistoryRiderMutation,
+} from "@/redux/features/history/history.api";
+import toast from "react-hot-toast";
+
+interface RideHistoryCardProps {
+  ride: Ride;
+  onCancel?: (id: string) => void;
+  user: IUser;
+  isloading: boolean;
+}
+
+const RideHistoryCard = ({
+  ride,
+  onCancel,
+  user,
+  isloading,
+}: RideHistoryCardProps) => {
+  const [openRatingDialog, setOpenRatingDialog] = useState(false);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
+
+  const [updateRider, { isLoading: riderLoading }] =
+    useUpdateHistoryRiderMutation();
+  const [updateDriver, { isLoading: driverLoading }] =
+    useUpdateHistoryDriverMutation();
 
 
-import { Button } from '@/components/ui/button';
+  const handleUpdateHistory = async (ratingValue: number) => {
+    if(!ride?.history?._id) return toast.error('No History found')
+    try {
+const id = ride.history._id
+      if (user?.role === "rider") {
+        
 
 
+              const payload = {  rating:ratingValue };
 
-const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: string) => void }) => {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "requested":
-        return <Badge className="bg-blue-100 text-blue-800">Requested</Badge>;
-      case "accepted":
-        return <Badge className="bg-indigo-100 text-indigo-800">Accepted</Badge>;
-      case "picked_up":
-        return <Badge className="bg-purple-100 text-purple-800">Picked Up</Badge>;
-      case "in_transit":
-        return <Badge className="bg-yellow-100 text-yellow-800">In Transit</Badge>;
-      case "completed":
-        return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
-      case "cancelled_by_rider":
-        return <Badge className="bg-red-100 text-red-800">Cancelled by Rider</Badge>;
-      case "cancelled_by_driver":
-        return <Badge className="bg-red-100 text-red-800">Cancelled by Driver</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
+     
+                await updateRider({id, payload}).unwrap();
+
+      } else if (user.role === "driver") {
+          const payload = {  rating:ratingValue };
+
+
+        await updateDriver({id, payload}).unwrap();
+
+      }
+toast.success('Rating added Successfully')
+      setOpenRatingDialog(false);
+    } catch (err) {
+      console.log(err);
+      toast.error("Rating update failed");
     }
   };
+
+  const getStatusBadge = (status: string) => {
+    const colors: Record<string, string> = {
+      requested: "bg-blue-100 text-blue-800",
+      accepted: "bg-indigo-100 text-indigo-800",
+      picked_up: "bg-purple-100 text-purple-800",
+      in_transit: "bg-yellow-100 text-yellow-800",
+      completed: "bg-green-100 text-green-800",
+      cancelled_by_rider: "bg-red-100 text-red-800",
+      cancelled_by_driver: "bg-red-100 text-red-800",
+    };
+    return (
+      <Badge className={colors[status] || "bg-gray-100 text-gray-800"}>
+        {status.replace(/_/g, " ").toUpperCase()}
+      </Badge>
+    );
+  };
+
+  if (isloading) return <Loader />;
 
   return (
     <motion.div
@@ -48,110 +98,172 @@ const RideHistoryCard = ({ ride , onCancel }: { ride: Ride, onCancel?: (id: stri
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.3 }}
-      className="bg-white dark:bg-card rounded-2xl shadow-lg p-4 sm:p-6 flex flex-col gap-4 border border-border"
+      className="bg-white dark:bg-card rounded-2xl shadow-md p-5 border border-border flex flex-col gap-3"
     >
-      {/* Header: Pickup → Destination + Status */}
-      <div className="flex flex-col  gap-2">
-        <div className="flex items-center gap-2 text-base sm:text-lg font-semibold text-foreground">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2 text-base font-semibold text-foreground">
           <MapPin className="h-5 w-5 text-primary shrink-0" />
           <span className="truncate">
             {ride?.pickupLocation?.address} → {ride?.destinationLocation?.address}
           </span>
         </div>
-        <div>{getStatusBadge(ride.status)}</div>
+        {getStatusBadge(ride.status)}
       </div>
 
-      {/* Date & Time */}
-      <div className="flex items-center text-sm text-muted-foreground gap-2">
-        <Clock className="h-4 w-4 text-primary" />
-        {format(new Date(ride?.createdAt), "yyyy-MM-dd hh:mm a")}
+      {/* Driver Info */}
+      <div className="text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">Driver:</span>{" "}
+        {ride?.driver?.name || "N/A"} ({ride?.driver?.email})
       </div>
 
-      {/* Fare & Passengers */}
-      <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <DollarSign className={`h-4 w-4 ${(ride.status === 'cancelled_by_rider' || ride.status === 'cancelled_by_driver') ? 'text-red-500' : 'text-green-500'}`} />
-          <span className="font-medium text-foreground">
-            {ride.fare.toFixed(2)} 
-          </span>
+      {/* Date & Fare */}
+      <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-primary" />
+          {format(new Date(ride?.createdAt), "yyyy-MM-dd hh:mm a")}
         </div>
-        <div className="flex items-center gap-1">
-          <Users className={`h-4 w-4 ${(ride.status === 'cancelled_by_rider' || ride.status === 'cancelled_by_driver') ? 'text-red-500' : 'text-primary'} `} />
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-green-500" />
+          <span className="font-semibold text-foreground">{ride.fare} BDT</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
           {ride.passengers} Passengers
         </div>
       </div>
 
       {/* Ratings */}
+    
+{ride?.status === "completed" &&
+  (
+    (user?.role === "driver" && (!ride?.history?.riderRating || ride.history.riderRating < 1)) ||
+    (user?.role === "rider" && (!ride?.history?.driverRating || ride.history.driverRating < 1))
+  ) && (
+    <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-border">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-foreground">
+            {user?.role === "rider" ? "Rate Driver:" : "Rate Rider:"}
+          </span>
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`h-5 w-5 cursor-pointer ${
+                i < (selectedRating || 0)
+                  ? "text-yellow-400"
+                  : "text-muted-foreground"
+              }`}
+              onClick={() => setOpenRatingDialog(true)}
+            />
+          ))}
+        </div>
+
+        <AlertDialog open={openRatingDialog} onOpenChange={setOpenRatingDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {user?.role === "rider" ? "Rate Your Driver" : "Rate Your Rider"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {user?.role === "rider"
+                  ? "How was your ride experience?"
+                  : "How was your experience with this rider?"}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <div className="flex justify-center gap-2 py-3">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`h-7 w-7 cursor-pointer ${
+                    i < (selectedRating || 0)
+                      ? "text-yellow-400"
+                      : "text-muted-foreground"
+                  }`}
+                  onClick={() => setSelectedRating(i + 1)}
+                />
+              ))}
+            </div>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel>Close</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={!selectedRating || riderLoading || driverLoading}
+                onClick={() =>
+                  selectedRating && handleUpdateHistory(selectedRating)
+                }
+              >
+                {riderLoading || driverLoading ? "Saving..." : "Done"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </div>
+  )}
 
 
-      {/* {
-        ride.status === "completed" && (
-          <p>placeholder</p>
-      //      <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2 border-t border-border">
-      //   <div className="flex items-center gap-2 text-sm">
-      //     <span className="font-medium text-foreground">Your Rating:</span>
-      //     {[...Array(5)].map((_, i) => (
-      //       <Star
-      //         key={i}
-      //         className={`h-4 w-4 transition-colors ${
-      //           i < ride?.userRating ? "text-yellow-400" : "text-muted-foreground"
-      //         }`}
-      //       />
-      //     ))}
-      //   </div>
-      //   <div className="flex items-center gap-2 text-sm">
-      //     <span className="font-medium text-foreground">Driver Rating:</span>
-      //     {[...Array(5)].map((_, i) => (
-      //       <Star
-      //         key={i}
-      //         className={`h-4 w-4 transition-colors ${
-      //           i < ride.driverRating
-      //             ? "text-yellow-400"
-      //             : "text-muted-foreground"
-      //         }`}
-      //       />
-      //     ))}
-      //   </div>
-      // </div>
-        )
-      } */}
-
-
-      {
-        ride.status === "requested" && (
-          <div>
-
-<AlertDialog>
-  <AlertDialogTrigger>
-            <Button  className="bg-red-500 text-white hover:bg-red-300"><X/> Cancel Ride</Button>
-
-
-  </AlertDialogTrigger>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-      <AlertDialogDescription>
-        This action cannot be undone. This will permanently cancel your ride request.
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter >
-      <AlertDialogCancel className="bg-white hover:bg-gray-300">No, Cancel</AlertDialogCancel>
-      <AlertDialogAction
-        className="bg-red-500 text-white hover:bg-red-300"
-        onClick={() => { if (onCancel) onCancel(ride?._id); }}
-      >
-        Yes, Confirm
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
 
 
 
-          </div>
-        )
-      }
-     
+{/* Show ratings summary */}
+{ride?.status === "completed" && (
+  <div className="flex flex-wrap items-center justify-between text-xs text-muted-foreground border-t border-border pt-2">
+    <div className="flex items-center gap-1">
+      <Star className="h-4 w-4 text-yellow-400" />
+      <span>
+        Driver Rating:{" "}
+        <span className="font-medium text-foreground">
+          {ride?.history?.driverRating
+            ? `${ride.history.driverRating} / 5`
+            : "Not rated yet"}
+        </span>
+      </span>
+    </div>
+    <div className="flex items-center gap-1">
+      <Star className="h-4 w-4 text-yellow-400" />
+      <span>
+        Rider Rating:{" "}
+        <span className="font-medium text-foreground">
+          {ride?.history?.riderRating
+            ? `${ride.history.riderRating} / 5`
+            : "Not rated yet"}
+        </span>
+      </span>
+    </div>
+  </div>
+)}
+
+      {/* Cancel Ride Button */}
+      {ride.status === "requested" && user.role === "rider" && (
+        <div className="pt-3 border-t border-border">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button className="bg-red-500 text-white hover:bg-red-400">
+                <X /> Cancel Ride
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently cancel your ride request.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Go Back</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-500 hover:bg-red-400"
+                  onClick={() => onCancel && onCancel(ride._id)}
+                >
+                  Confirm Cancel
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      )}
     </motion.div>
   );
 };

@@ -380,7 +380,7 @@ const Register = () => {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-12 gradient-primary text-white font-medium shadow-medium hover:shadow-elevated transition-all duration-300 mt-6 group"
+                  className="w-full h-12  text-white font-medium shadow-medium hover:shadow-elevated transition-all duration-300 mt-6 group"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">

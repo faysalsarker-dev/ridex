@@ -6,6 +6,7 @@ import { AnimatedList } from "@/components/magicui/animated-list";
 import { useRideHistoryQuery } from "@/redux/features/ride/ride.api";
 import RideHistoryCardSkeleton from "@/components/custom/RideHistoryCardSkeleton";
 import type { Ride } from "@/components/interfaces";
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 
 
 
@@ -15,7 +16,7 @@ const RiderHistory = () => {
   
 const {data ,isLoading }=useRideHistoryQuery(undefined)
 
-
+const {data:user ,isLoading:IsUserLoading}=useUserInfoQuery({})
 
 
   const totalSpent = data?.data?.filter((ride: Ride) => ride?.status === "completed")
@@ -96,7 +97,7 @@ const {data ,isLoading }=useRideHistoryQuery(undefined)
       {/* Ride History List */}
       <AnimatedList className="space-y-4">
         {data?.data?.map((ride: Ride) => (
-          <RideHistoryCard key={ride._id} ride={ride} />
+          <RideHistoryCard key={ride._id} ride={ride} user={user?.data} isloading={IsUserLoading} />
         ))}
       </AnimatedList>
     </div>

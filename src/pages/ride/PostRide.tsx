@@ -1,6 +1,5 @@
-
-
-import { useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MapPin, Clock } from "lucide-react";
+import { MapPin, Clock, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
   Select,
@@ -28,6 +27,10 @@ import { calculateDistance } from "@/utils/calculateDistance";
 import { useNavigate } from "react-router";
 import { Badge } from "@/components/ui/badge";
 
+// ============================================================================
+// TYPES
+// ============================================================================
+
 interface LocationData {
   lat: number;
   lng: number;
@@ -38,32 +41,261 @@ interface LocationData {
   division?: string;
 }
 
-// Passenger-based fare calculation
-function getRatePerKm(passengers: number) {
-  if (passengers === 1) return 20;
-  if (passengers === 2) return 35;
-  if (passengers === 3) return 50;
-  return 20;
+interface FormData {
+  passengers: string;
+  notes: string;
 }
 
-// Haversine formula
+interface FareCalculation {
+  distance: number;
+  fare: number;
+  minFare: number;
+  eta: number;
+}
 
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const FARE_RATES: Record<number, number> = {
+  1: 20,
+  2: 35,
+  3: 50,
+} as const;
+
+const AVG_SPEED_KMH = 40;
+const MAX_SUGGESTIONS = 10;
+const DEBOUNCE_DELAY_MS = 300;
+const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org";
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+function getRatePerKm(passengers: number): number {
+  return FARE_RATES[passengers] || FARE_RATES[1];
+}
+
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeoutId: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+}
+
+// ============================================================================
+// CUSTOM HOOKS
+// ============================================================================
+
+function useGeolocation() {
+  const [location, setLocation] = useState<LocationData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!("geolocation" in navigator)) {
+      setError("Geolocation is not supported");
+      setIsLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude: lat, longitude: lng } = position.coords;
+
+        try {
+          const res = await fetch(
+            `${NOMINATIM_BASE_URL}/reverse?format=json&lat=${lat}&lon=${lng}`
+          );
+
+          if (!res.ok) throw new Error("Failed to fetch location");
+
+          const data = await res.json();
+
+          if (!isMounted) return;
+
+          const area =
+            data.address.suburb ||
+            data.address.village ||
+            data.address.town ||
+            "";
+          const city =
+            data.address.city ||
+            data.address.state_district ||
+            data.address.state ||
+            "";
+          const address = `${area}, ${city}`;
+
+          setLocation({
+            lat,
+            lng,
+            address,
+            country_code: data.address.country_code,
+            area,
+            city,
+            division: data.address.state || "",
+          });
+        } catch (err) {
+          if (isMounted) {
+            console.error("Location fetch error:", err);
+            setError("Could not fetch location name");
+          }
+        } finally {
+          if (isMounted) setIsLoading(false);
+        }
+      },
+      (err) => {
+        if (isMounted) {
+          console.error("Geolocation error:", err);
+          setError("Could not get your location");
+          setIsLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return { location, isLoading, error };
+}
+
+function useLocationSuggestions(countryCode?: string) {
+  const [suggestions, setSuggestions] = useState<LocationData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchSuggestions = useCallback(
+    async (query: string, signal: AbortSignal) => {
+      if (!query || !countryCode) {
+        setSuggestions([]);
+        return;
+      }
+
+      setIsLoading(true);
+
+      try {
+        const res = await fetch(
+          `${NOMINATIM_BASE_URL}/search?format=json&q=${encodeURIComponent(
+            query
+          )}&countrycodes=${countryCode}&addressdetails=1`,
+          { signal }
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch suggestions");
+
+        const data = await res.json();
+
+        const mapped = data.slice(0, MAX_SUGGESTIONS).map((item: any) => {
+          const area =
+            item.address.suburb ||
+            item.address.village ||
+            item.address.town ||
+            "";
+          const city =
+            item.address.city ||
+            item.address.state_district ||
+            item.address.state ||
+            "";
+          const formatted = `${area}, ${city}`;
+
+          return {
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+            address: formatted || item.display_name,
+            area,
+            city,
+            division: item.address.state || "",
+          };
+        });
+
+        setSuggestions(mapped);
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error("Suggestion fetch error:", err);
+          setSuggestions([]);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [countryCode]
+  );
+
+  const debouncedFetch = useMemo(
+    () => debounce(fetchSuggestions, DEBOUNCE_DELAY_MS),
+    [fetchSuggestions]
+  );
+
+  const clearSuggestions = useCallback(() => setSuggestions([]), []);
+
+  return { suggestions, isLoading, debouncedFetch, clearSuggestions };
+}
+
+function useFareCalculation(
+  pickup: LocationData | null,
+  destination: LocationData | null,
+  passengers: number
+): FareCalculation | null {
+  return useMemo(() => {
+    if (!pickup || !destination || !passengers) return null;
+
+    const distance = calculateDistance(
+      pickup.lat,
+      pickup.lng,
+      destination.lat,
+      destination.lng
+    );
+
+    const rate = getRatePerKm(passengers);
+    const calculatedFare = distance * rate;
+    const timeMinutes = Math.ceil((distance / AVG_SPEED_KMH) * 60);
+
+    return {
+      distance,
+      fare: calculatedFare,
+      minFare: calculatedFare,
+      eta: timeMinutes,
+    };
+  }, [pickup, destination, passengers]);
+}
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 export default function PostRide() {
-  const [pickup, setPickup] = useState<LocationData | null>(null);
+  const navigate = useNavigate();
+
+  // Location state
+  const { location: pickup, isLoading: isLoadingLocation } = useGeolocation();
   const [pickupInput, setPickupInput] = useState("");
   const [destination, setDestination] = useState<LocationData | null>(null);
   const [destinationInput, setDestinationInput] = useState("");
-  const [destinationSuggestions, setDestinationSuggestions] = useState<LocationData[]>([]);
 
-  const [fare, setFare] = useState<number | null>(null);
-  const [minFare, setMinFare] = useState<number | null>(null);
-  const [distance, setDistance] = useState<number | null>(null);
-  const [eta, setEta] = useState<number | null>(null);
-const navigate = useNavigate()
-  const [createRideRequest, { isLoading }] = useCreateRideRequestMutation();
+  // Suggestions
+  const {
+    suggestions: destinationSuggestions,
+    isLoading: isLoadingSuggestions,
+    debouncedFetch,
+    clearSuggestions,
+  } = useLocationSuggestions(pickup?.country_code);
 
-  const { register, handleSubmit, setValue, watch } = useForm({
+  // Fare state
+  const [customFare, setCustomFare] = useState<number | null>(null);
+
+  // API
+  const [createRideRequest, { isLoading: isSubmitting }] =
+    useCreateRideRequestMutation();
+
+  // Form
+  const { register, handleSubmit, setValue, watch } = useForm<FormData>({
     defaultValues: {
       passengers: "1",
       notes: "",
@@ -72,109 +304,68 @@ const navigate = useNavigate()
 
   const passengers = parseInt(watch("passengers"));
 
-  /** Auto-detect pickup */
+  // Calculate fare
+  const fareCalculation = useFareCalculation(pickup, destination, passengers);
+
+  // Update pickup input when location is detected
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-          );
-          const data = await res.json();
-          const address = `${data.address.suburb || data.address.village || data.address.town || ""}, ${
-            data.address.city || data.address.state || ""
-          }`;
-
-          setPickup({
-            lat,
-            lng,
-            address,
-            country_code: data.address.country_code,
-            area: data.address.suburb || data.address.village || data.address.town || "",
-            city: data.address.city || data.address.state_district || data.address.state || "",
-            division: data.address.state || "",
-          });
-
-          setPickupInput(address);
-        } catch (err) {
-          console.error("Could not fetch location name", err);
-        }
-      });
+    if (pickup?.address) {
+      setPickupInput(pickup.address);
     }
-  }, []);
+  }, [pickup]);
 
- 
-  const fetchDestinationSuggestions = async (query: string) => {
-    if (!query || !pickup?.country_code) return [];
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        query
-      )}&countrycodes=${pickup.country_code}&addressdetails=1`
-    );
-    const data = await res.json();
-    return data.slice(0, 10).map((item: any) => {
-      const area = item.address.suburb || item.address.village || item.address.town || "";
-      const city = item.address.city || item.address.state_district || item.address.state || "";
-      const division = item.address.state || "";
-
-      const formatted = `${area}, ${city}`;
-      return {
-        lat: parseFloat(item.lat),
-        lng: parseFloat(item.lon),
-        address: formatted || item.display_name,
-        area,
-        city,
-        division,
-      };
-    });
-  };
-
-  const handleDestinationChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDestinationInput(e.target.value);
-    const suggestions = await fetchDestinationSuggestions(e.target.value);
-    setDestinationSuggestions(suggestions);
-  };
-
+  // Handle destination input changes with debouncing
   useEffect(() => {
-    if (pickup && destination && passengers) {
-      const dist = calculateDistance(pickup.lat, pickup.lng, destination.lat, destination.lng);
-      const rate = getRatePerKm(passengers);
-      const calculatedFare = (dist * rate);
-      setDistance(dist);
-      setFare(calculatedFare);
-      setMinFare(calculatedFare);
+    const controller = new AbortController();
 
-      const avgSpeed = 40;
-      const timeMinutes = Math.ceil((dist / avgSpeed) * 60);
-      setEta(timeMinutes);
+    if (destinationInput.trim()) {
+      debouncedFetch(destinationInput, controller.signal);
+    } else {
+      clearSuggestions();
     }
-  }, [pickup, destination, passengers]);
 
-  const handleFareChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value) && minFare !== null) {
-      if (value >= minFare) {
-        setFare(value);
-      } else {
-        setFare(minFare);
-        toast.error(`Fare cannot be less than ৳${minFare.toFixed(2)}`);
+    return () => {
+      controller.abort();
+    };
+  }, [destinationInput, debouncedFetch, clearSuggestions]);
+
+  // Handle destination selection
+  const handleDestinationSelect = useCallback((location: LocationData) => {
+    setDestination(location);
+    setDestinationInput(location.address);
+    clearSuggestions();
+  }, [clearSuggestions]);
+
+  // Handle custom fare input
+  const handleFareChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = parseFloat(e.target.value);
+
+      if (isNaN(value)) {
+        setCustomFare(null);
+        return;
       }
-    }
-  };
 
-  interface FormData {
-    passengers: string;
-    notes: string;
-  }
+      if (fareCalculation && value < fareCalculation.minFare) {
+        setCustomFare(fareCalculation.minFare);
+        toast.error(
+          `Fare cannot be less than ৳${fareCalculation.minFare.toFixed(2)}`
+        );
+      } else {
+        setCustomFare(value);
+      }
+    },
+    [fareCalculation]
+  );
 
+  // Form submission
   const onSubmit = async (data: FormData) => {
-    if (!pickup || !destination || !fare || !distance) {
+    if (!pickup || !destination || !fareCalculation) {
       toast.error("Please select valid pickup and destination");
       return;
     }
+
+    const finalFare = customFare ?? fareCalculation.fare;
 
     const payload = {
       pickupLocation: {
@@ -188,24 +379,33 @@ const navigate = useNavigate()
         lng: destination.lng,
         address: destination.address,
       },
-      distance,
-      fare,
+      distance: fareCalculation.distance,
+      fare: finalFare,
       passengers,
-      eta,
+      eta: fareCalculation.eta,
       notes: data.notes,
     };
 
     try {
-      const res =  await createRideRequest(payload).unwrap();
-      localStorage.setItem("rideId", JSON.stringify(res?.data?._id));
-      navigate(`/rider/on-ride?ride=${res?.data?._id}`);
+      const res = await createRideRequest(payload).unwrap();
+      const rideId = res?.data?._id;
 
-    } catch (err) {
-         type ApiError = { data?: { message?: string }; message?: string };
-      const error = err as ApiError;
-      toast.error(error?.data?.message || "Failed to submit ride");
+      if (rideId) {
+        localStorage.setItem("rideId", JSON.stringify(rideId));
+        navigate(`/rider/on-ride?ride=${rideId}`);
+      } else {
+        throw new Error("No ride ID returned");
+      }
+    } catch (err: any) {
+      console.error("Ride submission error:", err);
+      const errorMessage =
+        err?.data?.message || err?.message || "Failed to submit ride";
+      toast.error(errorMessage);
     }
   };
+
+  // Display fare (custom or calculated)
+  const displayFare = customFare ?? fareCalculation?.fare ?? null;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -224,20 +424,26 @@ const navigate = useNavigate()
 
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Pickup */}
+              {/* Pickup Location */}
               <div className="space-y-2">
                 <Label htmlFor="pickup" className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary" />
                   Pickup Location
                 </Label>
-                <Input
-                  id="pickup"
-                  value={pickupInput}
-                  onChange={(e) => setPickupInput(e.target.value)}
-                  className="h-12 rounded-xl border-border/50"
-                  placeholder="Detecting current location..."
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="pickup"
+                    value={pickupInput}
+                    onChange={(e) => setPickupInput(e.target.value)}
+                    className="h-12 rounded-xl border-border/50"
+                    placeholder="Detecting current location..."
+                    disabled={isLoadingLocation}
+                    required
+                  />
+                  {isLoadingLocation && (
+                    <Loader2 className="absolute right-3 top-3 h-6 w-6 animate-spin text-muted-foreground" />
+                  )}
+                </div>
               </div>
 
               {/* Destination */}
@@ -246,27 +452,43 @@ const navigate = useNavigate()
                   <MapPin className="h-4 w-4 text-destructive" />
                   Destination
                 </Label>
-                <Input
-                  id="destination"
-                  value={destinationInput}
-                  onChange={handleDestinationChange}
-                  className="h-12 rounded-xl border-border/50"
-                  placeholder="Enter destination"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="destination"
+                    value={destinationInput}
+                    onChange={(e) => setDestinationInput(e.target.value)}
+                    className="h-12 rounded-xl border-border/50"
+                    placeholder="Enter destination"
+                    required
+                    aria-autocomplete="list"
+                    aria-controls="destination-suggestions"
+                    aria-expanded={destinationSuggestions.length > 0}
+                  />
+                  {isLoadingSuggestions && (
+                    <Loader2 className="absolute right-3 top-3 h-6 w-6 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+
                 {destinationSuggestions.length > 0 && (
-                  <ul className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg max-h-40 overflow-auto">
-                    {destinationSuggestions.map((s, idx) => (
+                  <ul
+                    id="destination-suggestions"
+                    role="listbox"
+                    className="absolute z-10 mt-1 w-full bg-white border rounded-xl shadow-lg max-h-40 overflow-auto"
+                  >
+                    {destinationSuggestions.map((suggestion, idx) => (
                       <li
                         key={idx}
-                        className="p-2 hover:bg-primary/10 cursor-pointer"
-                        onClick={() => {
-                          setDestination(s);
-                          setDestinationInput(s.address);
-                          setDestinationSuggestions([]);
+                        role="option"
+                        className="p-2 hover:bg-primary/10 cursor-pointer transition-colors"
+                        onClick={() => handleDestinationSelect(suggestion)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            handleDestinationSelect(suggestion);
+                          }
                         }}
+                        tabIndex={0}
                       >
-                        {s.address}
+                        {suggestion.address}
                       </li>
                     ))}
                   </ul>
@@ -274,48 +496,58 @@ const navigate = useNavigate()
               </div>
 
               {/* Distance, Fare & ETA */}
-              {distance && (
+              {fareCalculation && (
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label>Distance</Label>
-                    <Input value={`${distance} km`} readOnly className="h-12 bg-muted" />
+                    <Input
+                      value={`${fareCalculation.distance.toFixed(1)} km`}
+                      readOnly
+                      className="h-12 bg-muted"
+                      tabIndex={-1}
+                    />
                   </div>
                   <div>
-                    <Label>Fare</Label>
+                    <Label>Fare (৳)</Label>
                     <Input
                       type="number"
-                      value={fare?.toFixed(2) ?? ""}
+                      step="0.01"
+                      min={fareCalculation.minFare}
+                      value={displayFare?.toFixed(2) ?? ""}
                       onChange={handleFareChange}
                       className="h-12"
                       required
                     />
-                    {minFare && (
-                      <p className="text-xs text-muted-foreground">
-                        Minimum fare: ${minFare.toFixed(2)}
-                      </p>
-                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Minimum: ৳{fareCalculation.minFare.toFixed(2)}
+                    </p>
                   </div>
                   <div>
                     <Label className="flex items-center gap-1">
                       <Clock className="h-4 w-4 text-primary" /> ETA
                     </Label>
-                    <Input value={eta ? `${eta} min` : ""} readOnly className="h-12 bg-muted" />
+                    <Input
+                      value={`${fareCalculation.eta} min`}
+                      readOnly
+                      className="h-12 bg-muted"
+                      tabIndex={-1}
+                    />
                   </div>
                 </div>
               )}
 
               {/* Passengers */}
               <div>
-                <Label>Passengers</Label>
+                <Label htmlFor="passengers">Passengers</Label>
                 <Select
                   defaultValue="1"
                   onValueChange={(val) => setValue("passengers", val)}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="passengers" className="w-full h-12">
                     <SelectValue placeholder="Select Passengers" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Array.from({ length: 3 }, (_, i) => i + 1).map((num) => (
+                    {[1, 2, 3].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
                         {num} {num === 1 ? "Passenger" : "Passengers"}
                       </SelectItem>
@@ -323,23 +555,35 @@ const navigate = useNavigate()
                   </SelectContent>
                 </Select>
               </div>
-<Badge className=" bg-blue-300 text-blue-600 my-2">
-  Cash On Payment
-</Badge>
 
+              <Badge className="bg-blue-300 text-blue-600">
+                Cash On Payment
+              </Badge>
 
               {/* Notes */}
               <div>
-                <Label>Notes (Optional)</Label>
-                <Textarea {...register("notes")} className="min-h-[100px]" />
+                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Textarea
+                  id="notes"
+                  {...register("notes")}
+                  className="min-h-[100px] rounded-xl"
+                  placeholder="Any special instructions or preferences..."
+                />
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-12"
-                disabled={isLoading}
+                className="w-full h-12 text-base font-semibold"
+                disabled={isSubmitting || isLoadingLocation || !fareCalculation}
               >
-                {isLoading ? "Posting Ride..." : "Post Ride Request"}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Posting Ride...
+                  </>
+                ) : (
+                  "Post Ride Request"
+                )}
               </Button>
             </form>
           </CardContent>
