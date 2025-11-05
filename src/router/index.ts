@@ -1,5 +1,5 @@
 
-import HomePage from "@/layout/home/HomePage";
+import HomePage from "@/layout/home/Landing/HomePage";
 import LoginPage from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import { publicRoutes } from "@/utils/publicRoutes";
@@ -7,6 +7,8 @@ import { createBrowserRouter } from "react-router";
 import { generateRoutes } from "./generateRoutes";
 import { userRoutes } from "@/utils/userRoutes";
 import { RoleBaseRoutes } from "@/utils/RoleBaseRoute";
+import Dashboard from "@/layout/dashboard/Dashboard";
+import { adminRoutes } from "@/utils/adminRoutes";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +30,17 @@ export const router = createBrowserRouter([
   {
       Component: Register,
             path: "/register",
+  },
+    {
+    Component: Dashboard,
+    path: "/dashboard",
+    children: [
+   ...generateRoutes(adminRoutes),
+
+
+    ],
+
+   
   },
   
 ]);

@@ -12,12 +12,12 @@ export const userRoutes: Iroutes[] = [
         icon: User,
         name:"Profile"
       },
-         {
-        Component: DriverDashboard,
-        path: "/dashboard",
-        icon: LayoutDashboard,
-        name:"Dashboard"
-      },
+      //    {
+      //   Component: DriverDashboard,
+      //   path: "/dashboard",
+      //   icon: LayoutDashboard,
+      //   name:"Dashboard"
+      // },
 
       
 ]

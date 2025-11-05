@@ -21,7 +21,7 @@ export function SOSButton({ policeNumber = "999" }: SOSButtonProps) {
   const updateCountRef = useRef(0);
 
   const { data } = useUserInfoQuery(undefined);
-  const emergencyContact: string | undefined = '01884570877';
+  const emergencyContact: string | undefined = data?.data.emargencyNumber;
 
   // Get current location
   const getLocation = (): Promise<Coords> =>
