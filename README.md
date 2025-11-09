@@ -1,11 +1,5 @@
 # 🚖 Ride Booking Platform – Frontend (React + Redux Toolkit + RTK Query)
 
-A **production-grade**, fully responsive, and **role-based Ride Booking Platform** frontend built with **React.js**, **Redux Toolkit**, **RTK Query**, and **TypeScript** — inspired by platforms like **Uber** and **Pathao**.
-
-This frontend interacts with a dedicated **Node.js/Express + MongoDB Backend API** to deliver tailored experiences for **Riders**, **Drivers**, and **Admins**, ensuring smooth UI/UX across all devices.
-
----
-
 ## 🧭 Project Overview
 
 ### 🎯 Key Features
@@ -79,15 +73,16 @@ This frontend interacts with a dedicated **Node.js/Express + MongoDB Backend API
 Here’s the clean and scalable folder structure used in this project 👇
 
 src/
-├── hooks/ # Custom React hooks
-├── layouts/ # Shared layout components (Navbar, Footer, etc.)
-├── redux/ # All Redux-related code (slices, store, and API setup)
-├── components/ # Reusable UI components (module-based pattern)
-├── pages/ # Page-level components (Public, Rider, Driver, Admin)
-├── routes/ # Route protection and role-based routing logic
-├── utils/ # Helper functions and constants
-├── App.tsx # Main application entry
-└── main.tsx # Vite entry point
+├── hooks/               # Custom React hooks
+├── layouts/             # Shared layout components (Navbar, Footer, etc.)
+├── redux/               # All Redux-related code (store, slices, API setup)
+├── components/          # Reusable UI components (module-based pattern)
+├── pages/               # Page-level components (Public, Rider, Driver, Admin)
+├── routes/              # Route protection and role-based routing logic
+├── utils/               # Helper functions and constants
+├── App.tsx              # Main application entry
+└── main.tsx             # Vite entry point
+
 
 
 ---
