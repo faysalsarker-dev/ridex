@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, DollarSign, Star } from "lucide-react";
+import { MapPin, DollarSign } from "lucide-react";
 import RideHistoryCard from "@/components/modules/rides/RideHistoryCard";
 import { AnimatedList } from "@/components/magicui/animated-list";
 import { useRideHistoryQuery } from "@/redux/features/ride/ride.api";
@@ -76,13 +76,7 @@ const {data:user ,isLoading:IsUserLoading}=useUserInfoQuery({})
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <Card className="text-center shadow-soft rounded-2xl border-border/50">
-            <CardContent className="pt-6">
-              <Star className="h-8 w-8 mx-auto text-yellow-500 mb-2" />
-              <p className="text-2xl font-bold">4.8</p>
-              <p className="text-sm text-muted-foreground">Avg Rating Given</p>
-            </CardContent>
-          </Card>
+       
         </motion.div>
       </div>
 

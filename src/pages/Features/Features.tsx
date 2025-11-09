@@ -53,7 +53,7 @@ const Features = () => {
   return (
     <>
       
-      <section className="pt-32 pb-20 bg-gradient-to-b from-muted/30 to-background">
+      <section className="pt-32 pb-20 bg-secondary">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -62,7 +62,7 @@ const Features = () => {
             className="text-center max-w-4xl mx-auto"
           >
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Powerful <span className="bg-gradient-primary bg-clip-text text-transparent">Features</span>
+              Powerful <span className="bg-primary bg-clip-text text-transparent">Features</span>
             </h1>
             <p className="text-xl text-muted-foreground">
               Discover all the capabilities designed to make your experience seamless, whether you're a rider, driver, or admin.

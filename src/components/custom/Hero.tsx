@@ -1,11 +1,16 @@
-"use client";
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero.jpg";
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
+import { Link, useNavigate } from "react-router";
 
 const HeroSection = () => {
+  const { data, isLoading } = useUserInfoQuery({});
+  const navigate = useNavigate();
+  const user = data?.data;
+
   return (
     <section className="relative h-[100vh] flex items-center justify-center text-center overflow-hidden bg-black">
       {/* ===== Background Image ===== */}
@@ -63,9 +68,16 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
-          Move <span className="bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">Smarter</span>,  
+          Move{" "}
+          <span className="bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">
+            Smarter
+          </span>
+          ,  
           <br className="hidden md:block" />  
-          Live <span className="bg-gradient-to-r from-pink-500 to-primary bg-clip-text text-transparent">Better</span>
+          Live{" "}
+          <span className="bg-gradient-to-r from-pink-500 to-primary bg-clip-text text-transparent">
+            Better
+          </span>
         </motion.h1>
 
         <motion.p
@@ -77,30 +89,32 @@ const HeroSection = () => {
           Get where you need to go with ease — fast, safe, and reliable rides at your fingertips.
         </motion.p>
 
+        {/* ===== Buttons ===== */}
         <motion.div
           className="flex flex-col sm:flex-row gap-4 justify-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          <Button
-            size="lg"
-            className="relative overflow-hidden bg-gradient-to-r from-primary to-pink-500 text-white rounded-full px-10 py-6 text-lg shadow-[0_0_20px_rgba(255,255,255,0.2)] group"
-          >
-            <span className="relative z-10 flex items-center">
-              Book a Ride
-              <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
-            </span>
-            <motion.span
-              className="absolute inset-0 bg-white/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-              initial={false}
-              animate={{}}
-            />
-          </Button>
+          <Link to={!isLoading && user ? "/book" : "/register"}>
+            <Button
+              size="lg"
+              className="relative overflow-hidden bg-primary text-white rounded-full px-10 py-6 text-lg shadow-[0_0_20px_rgba(255,255,255,0.2)] group"
+            >
+              <span className="relative z-10 flex items-center">
+                Book a Ride
+                <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
+              </span>
+              <motion.span
+                className="absolute inset-0 bg-white/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+              />
+            </Button>
+          </Link>
 
           <Button
             variant="secondary"
             size="lg"
+            onClick={() => navigate("/about")}
             className="rounded-full border border-white/30 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all duration-300"
           >
             Learn More
@@ -108,7 +122,7 @@ const HeroSection = () => {
         </motion.div>
       </motion.div>
 
-      {/* ===== Light Rays (subtle aesthetic) ===== */}
+      {/* ===== Light Rays ===== */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_70%)] pointer-events-none" />
     </section>
   );

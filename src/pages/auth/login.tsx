@@ -54,13 +54,19 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      await loginMutation({
+    const result =  await loginMutation({
         email: data.email,
         password: data.password,
       }).unwrap();
 
       toast.success("Login successful");
-      navigate(location.state?.from || "/");
+      if(result.data.role === 'admin'){
+      navigate("/dashboard");
+
+      }else{
+          navigate(location.state?.from || "/");
+      }
+    
     } catch (err) {
       type ApiError = { data?: { message?: string }; message?: string };
       const error = err as ApiError;

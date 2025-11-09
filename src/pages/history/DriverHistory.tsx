@@ -1,14 +1,15 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin,  DollarSign, TrendingUp } from "lucide-react";
+import { MapPin,  DollarSign } from "lucide-react";
 import { useDriverHistoryQuery } from "@/redux/features/ride/ride.api";
 import RideHistoryCard from "@/components/modules/rides/RideHistoryCard";
 import type {  Ride } from "@/components/interfaces";
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 
 const DriverHistory = () => {
   const {data :rideHistory}=useDriverHistoryQuery(undefined);
   
-
+const {data,isLoading}=useUserInfoQuery({})
 
 
 
@@ -18,10 +19,6 @@ const DriverHistory = () => {
 
   const completedRides = rideHistory?.data?.filter((ride:Ride) => ride?.status === "completed").length;
 
-  // const avgRating = rideHistory
-  //   .filter(ride => ride.ratingGiven !== null)
-  //   .reduce((acc, ride) => acc + (ride.ratingGiven || 0), 0) / 
-  //   rideHistory.filter(ride => ride.ratingGiven !== null).length;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -69,25 +66,12 @@ const DriverHistory = () => {
 
      
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <Card className="text-center shadow-soft rounded-2xl border-border/50">
-            <CardContent className="pt-6">
-              <TrendingUp className="h-8 w-8 mx-auto text-blue-500 mb-2" />
-              {/* <p className="text-2xl font-bold">${(totalEarned / completedRides).toFixed(2)}</p> */}
-              <p className="text-sm text-muted-foreground">Avg Per Ride</p>
-            </CardContent>
-          </Card>
-        </motion.div>
       </div>
 
       {/* Ride History List */}
       <div className="space-y-4">
         {rideHistory?.data?.map((ride: Ride) => (
-          <RideHistoryCard key={ride._id} ride={ride}   />
+          <RideHistoryCard key={ride._id} ride={ride}  user={data?.data}  isloading={isLoading}/>
         ))}
       </div>
     </div>

@@ -1,7 +1,6 @@
-import DriverDashboard from '@/pages/driver/DriverDashboard';
 import  UserProfile  from '@/pages/User/UserProfile';
-import { LayoutDashboard, User } from 'lucide-react';
 import type { Iroutes } from './publicRoutes';
+import { User } from 'lucide-react';
 
 
 

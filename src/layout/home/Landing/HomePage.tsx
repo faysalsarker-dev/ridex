@@ -1,4 +1,4 @@
-import { Footer } from "@/components/shared/Footer";
+import  Footer  from "@/components/shared/Footer";
 import Navbar from "@/components/shared/Navbar";
 import { Outlet, ScrollRestoration } from "react-router";
 
@@ -7,7 +7,7 @@ const HomePage = () => {
         <>
         <Navbar/>
     <ScrollRestoration/>
-        <main className="min-h-[calc(100vh-4rem)] bg-background mt-14">
+        <main className="min-h-[calc(100vh-4rem)] bg-background mt-16">
             <Outlet/>
 
         </main>
